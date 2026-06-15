@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>F&B Financial Toolkit — EHL FMFBO</title>
+<style>
+:root{
+  --bg:#e9edf0; --panel:#ffffff; --ink:#0e3536; --ink2:#3a5a5b;
+  --line:#d6dde0; --line2:#eef2f4;
+  --petrol:#0e3536; --teal:#15706b; --teal-soft:#e2f0ee;
+  --gold:#b9852b; --gold-soft:#f7eedd;
+  --pos:#1d6b4f; --neg:#b03a30; --muted:#7c8c8d;
+  --readout:#0e2625; --readout-ink:#eafff5;
+  --r:10px; --shadow:0 1px 2px rgba(14,53,54,.06),0 8px 24px rgba(14,53,54,.06);
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  font-size:15px;line-height:1.45;}
+.mono{font-family:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;font-variant-numeric:tabular-nums;}
+
+/* ---------- Layout ---------- */
+.app{display:flex;min-height:100vh;}
+.sidebar{width:268px;flex:0 0 268px;background:var(--petrol);color:#cfe3e0;
+  position:sticky;top:0;height:100vh;overflow-y:auto;padding:20px 14px 40px;}
+.brand{padding:4px 8px 14px;border-bottom:1px solid rgba(255,255,255,.12);margin-bottom:14px;}
+.brand .k{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#7fb3ab;}
+.brand h1{font-size:18px;margin:4px 0 2px;color:#fff;font-weight:650;line-height:1.2;}
+.brand .sub{font-size:11.5px;color:#84aaa6;}
+.navgroup{margin:14px 4px 4px;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:#5f928c;}
+.navlink{display:flex;gap:9px;align-items:baseline;width:100%;text-align:left;background:none;border:0;color:#bfdad6;
+  padding:8px 10px;border-radius:8px;cursor:pointer;font-size:13.5px;font-family:inherit;line-height:1.25;}
+.navlink:hover{background:rgba(255,255,255,.06);color:#fff;}
+.navlink.active{background:var(--teal);color:#fff;font-weight:600;}
+.navlink .n{font-size:10.5px;color:#7fb3ab;min-width:16px;}
+.navlink.active .n{color:#cdeee9;}
+
+.main{flex:1;min-width:0;padding:30px 36px 80px;max-width:1080px;}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:22px;flex-wrap:wrap;}
+.cur{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink2);}
+.cur select{font-family:inherit;font-size:13px;padding:5px 8px;border:1px solid var(--line);border-radius:7px;background:#fff;color:var(--ink);}
+
+/* ---------- Calc panels ---------- */
+.calc{display:none;animation:fade .2s ease;}
+.calc.active{display:block;}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.calc-head{margin-bottom:18px;}
+.calc-head .eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--teal);font-weight:600;}
+.calc-head h2{font-size:25px;margin:4px 0 6px;font-weight:650;letter-spacing:-.01em;}
+.calc-head p{margin:0;color:var(--ink2);font-size:14px;max-width:62ch;}
+
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);
+  padding:20px 22px;margin-bottom:18px;}
+.card > h3{margin:0 0 14px;font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);font-weight:650;}
+
+.grid{display:grid;gap:14px 18px;}
+.g2{grid-template-columns:1fr 1fr;}
+.g3{grid-template-columns:1fr 1fr 1fr;}
+.field{display:flex;flex-direction:column;gap:5px;}
+.field label{font-size:12.5px;color:var(--ink2);font-weight:500;}
+.field .hint{font-size:11px;color:var(--muted);}
+.field input,.field select{font-family:inherit;font-size:15px;padding:9px 11px;border:1px solid var(--line);
+  border-radius:8px;background:#fff;color:var(--ink);width:100%;}
+.field input.mono{font-family:ui-monospace,Menlo,monospace;}
+.field input:focus,.field select:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px var(--teal-soft);}
+.inline-unit{position:relative;}
+.inline-unit .u{position:absolute;right:11px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--muted);pointer-events:none;}
+
+/* ---------- Readout ---------- */
+.readout{background:var(--readout);border-radius:var(--r);padding:6px 4px;margin-top:2px;}
+.ro-row{display:flex;justify-content:space-between;align-items:baseline;gap:14px;padding:11px 18px;
+  border-bottom:1px solid rgba(255,255,255,.06);}
+.ro-row:last-child{border-bottom:0;}
+.ro-row.key{background:rgba(123,179,171,.10);border-radius:8px;}
+.ro-label{color:#9fc4bf;font-size:13px;}
+.ro-label .f{display:block;font-size:10.5px;color:#5f8a85;margin-top:2px;letter-spacing:.02em;}
+.ro-val{color:var(--readout-ink);font-size:18px;font-weight:600;white-space:nowrap;}
+.ro-row.key .ro-val{font-size:21px;color:#fff;}
+.ro-val.pos{color:#74e0ad;} .ro-val.neg{color:#ff9c8f;}
+.ro-tag{font-size:11px;padding:2px 9px;border-radius:20px;font-weight:600;white-space:nowrap;}
+
+/* ---------- Tables ---------- */
+.tbl-wrap{overflow-x:auto;margin:0 -4px;}
+table.dt{width:100%;border-collapse:collapse;font-size:13.5px;min-width:560px;}
+table.dt th{text-align:right;font-size:11px;letter-spacing:.03em;text-transform:uppercase;color:var(--muted);
+  font-weight:650;padding:8px 9px;border-bottom:2px solid var(--line);white-space:nowrap;}
+table.dt th.l,table.dt td.l{text-align:left;}
+table.dt td{padding:5px 6px;border-bottom:1px solid var(--line2);}
+table.dt td input{width:100%;border:1px solid transparent;background:#fbfdfd;border-radius:6px;padding:7px 8px;
+  font-family:inherit;font-size:13.5px;text-align:right;color:var(--ink);}
+table.dt td input.l{text-align:left;}
+table.dt td input:focus{outline:none;border-color:var(--teal);background:#fff;box-shadow:0 0 0 2px var(--teal-soft);}
+table.dt td.calc-cell{text-align:right;font-family:ui-monospace,Menlo,monospace;color:var(--ink2);font-variant-numeric:tabular-nums;}
+table.dt tr.totrow td{border-top:2px solid var(--line);border-bottom:0;font-weight:650;color:var(--ink);padding-top:9px;}
+table.dt tr.totrow td.calc-cell{color:var(--ink);}
+.cat{font-weight:650;padding:2px 8px;border-radius:6px;font-size:12px;display:inline-block;}
+.cat.A,.cat.Star{background:#dff3e9;color:#1d6b4f;}
+.cat.B,.cat.Puzzle{background:#fdf0d8;color:#9a6a13;}
+.cat.C,.cat.Dog{background:#f7e0dc;color:#a8392f;}
+.cat.Plow{background:#e3eef7;color:#2c5d86;}
+.del{border:0;background:none;color:#c2b5b5;cursor:pointer;font-size:16px;line-height:1;padding:4px;}
+.del:hover{color:var(--neg);}
+.addrow{margin-top:12px;background:var(--teal-soft);color:var(--teal);border:1px dashed #9fcdc7;
+  padding:9px 14px;border-radius:8px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;}
+.addrow:hover{background:#d3e9e6;}
+
+.note{font-size:12.5px;color:var(--ink2);background:var(--gold-soft);border:1px solid #ecdcbb;
+  border-radius:8px;padding:11px 14px;margin-top:6px;}
+.note b{color:#8a6212;}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start;}
+.pillrow{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;}
+.pill{font-size:12px;padding:4px 11px;border-radius:20px;background:var(--teal-soft);color:var(--teal);font-weight:600;}
+
+@media(max-width:880px){
+  .app{flex-direction:column;}
+  .sidebar{width:100%;flex:none;height:auto;position:static;display:flex;flex-wrap:wrap;gap:4px;padding:14px;}
+  .brand{flex:1 1 100%;}
+  .navgroup{flex:1 1 100%;}
+  .navlink{width:auto;flex:0 0 auto;}
+  .main{padding:20px 16px 60px;}
+  .g2,.g3,.split{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="k">EHL · FMFBO</div>
+      <h1>F&B Financial Toolkit</h1>
+      <div class="sub">Type the numbers → get the answer</div>
+    </div>
+    <nav id="nav"></nav>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div id="crumb" style="font-size:12.5px;color:var(--muted);letter-spacing:.04em;text-transform:uppercase;"></div>
+      <div class="cur">Currency
+        <select id="curSel">
+          <option value="CHF">CHF</option><option value="$">$</option>
+          <option value="€">€</option><option value="£">£</option>
+        </select>
+      </div>
+    </div>
+    <div id="panels"></div>
+  </main>
+</div>
+<script>
+/* ============ SHARED HELPERS ============ */
+let CUR = 'CHF';
+const $ = s => document.querySelector(s);
+const val = id => { const e=document.getElementById(id); if(!e) return 0; const v=parseFloat(String(e.value).replace(/[, ]/g,'')); return isNaN(v)?0:v; };
+const raw = id => { const e=document.getElementById(id); return e?e.value:''; };
+const fmtN = (x,d=2) => { if(!isFinite(x)) return '—'; return x.toLocaleString('en-CH',{minimumFractionDigits:d,maximumFractionDigits:d}).replace(/,/g,"'"); };
+const money = (x,d=2) => CUR+' '+fmtN(x,d);
+const pct = (x,d=1) => isFinite(x)? (x*100).toFixed(d)+'%' : '—';
+function ro(label, value, opt={}){
+  const f = opt.f? `<span class="f">${opt.f}</span>`:'';
+  const cls = opt.cls?(' '+opt.cls):'';
+  const vcls = opt.pos?'pos':(opt.neg?'neg':'');
+  const tag = opt.tag? ` <span class="ro-tag" style="background:${opt.tagBg||'#15706b'};color:#fff">${opt.tag}</span>`:'';
+  return `<div class="ro-row${cls}"><div class="ro-label">${label}${f}</div><div class="ro-val ${vcls}">${value}${tag}</div></div>`;
+}
+
+/* ============ MODULE REGISTRY ============ */
+const RECALC = {};           // id -> function
+const MODULES = [];          // {id, group, name, sub, html, init}
+function reg(m){ MODULES.push(m); }
+
+/* number input helper */
+function fld(id,label,ph,hint,unit){
+  const u = unit? `<div class="inline-unit"><input class="mono" id="${id}" inputmode="decimal" placeholder="${ph||''}"><span class="u">${unit}</span></div>`
+                : `<input class="mono" id="${id}" inputmode="decimal" placeholder="${ph||''}">`;
+  return `<div class="field"><label>${label}</label>${u}${hint?`<span class="hint">${hint}</span>`:''}</div>`;
+}
+
+/* ========================================================= */
+/* GROUP A — PROFIT & P&L                                    */
+/* ========================================================= */
+
+/* A1 · Profit & Target */
+reg({id:'profit',group:'Profit & P&L',name:'Profit & Target',sub:'L2',
+ html:`
+ <div class="split">
+  <div class="card"><h3>Result for a period</h3>
+    <div class="grid g2">
+      ${fld('p_rev','Revenue','','total sales',CUR)}
+      ${fld('p_exp','Expenses','','total costs',CUR)}
+    </div>
+    <div class="readout" id="p_out1"></div>
+  </div>
+  <div class="card"><h3>Reverse: hit a target profit</h3>
+    <div class="grid g2">
+      ${fld('p_rev2','Revenue','','expected sales',CUR)}
+      ${fld('p_target','Target profit','','goal',CUR)}
+    </div>
+    <div class="readout" id="p_out2"></div>
+    <div class="note">Max expenses you can afford = <b>Revenue − Target profit</b>.</div>
+  </div>
+ </div>`,
+ init(){RECALC.profit=()=>{
+   const rev=val('p_rev'),exp=val('p_exp'),profit=rev-exp;
+   $('#p_out1').innerHTML =
+     ro('Profit','<span class="'+(profit>=0?'pos':'neg')+'">'+money(profit)+'</span>',{f:'Revenue − Expenses',cls:'key'})+
+     ro('Profit margin',pct(rev?profit/rev:NaN),{f:'Profit ÷ Revenue'})+
+     ro('Cost ratio',pct(rev?exp/rev:NaN),{f:'Expenses ÷ Revenue'});
+   const rev2=val('p_rev2'),t=val('p_target'),allowed=rev2-t;
+   $('#p_out2').innerHTML =
+     ro('Allowed expenses',money(allowed),{f:'Revenue − Target',cls:'key'})+
+     ro('Implied cost ratio',pct(rev2?allowed/rev2:NaN),{f:'Allowed ÷ Revenue'});
+ };}
+});
+
+/* A2 · P&L Statement (USALI departmental) */
+reg({id:'pl',group:'Profit & P&L',name:'P&L Statement',sub:'L2 · L3',
+ html:`
+ <div class="card"><h3>Inputs — enter the ${CUR} amounts</h3>
+  <div class="grid g3">
+    ${fld('pl_cov','Covers','','# guests')}
+    ${fld('pl_fs','Food sales','',null,CUR)}
+    ${fld('pl_bs','Beverage sales','',null,CUR)}
+    ${fld('pl_os','Other sales','','optional',CUR)}
+    ${fld('pl_fc','Food cost','','cost of food sold',CUR)}
+    ${fld('pl_bc','Beverage cost','',null,CUR)}
+    ${fld('pl_oc','Other cost','','optional',CUR)}
+    ${fld('pl_lab','Labour & related','','all payroll',CUR)}
+    ${fld('pl_op','Operating expenses','','other controllable',CUR)}
+  </div>
+ </div>
+ <div class="card"><h3>Statement</h3><div class="readout" id="pl_out"></div></div>`,
+ init(){RECALC.pl=()=>{
+   const cov=val('pl_cov'),fs=val('pl_fs'),bs=val('pl_bs'),os=val('pl_os');
+   const fc=val('pl_fc'),bc=val('pl_bc'),oc=val('pl_oc'),lab=val('pl_lab'),op=val('pl_op');
+   const sales=fs+bs+os, cos=fc+bc+oc, gp=sales-cos, prime=cos+lab, dp=sales-prime-op;
+   const P=x=>pct(sales?x/sales:NaN);
+   $('#pl_out').innerHTML =
+     ro('Total sales',money(sales),{f:'Food + Beverage + Other',cls:'key'})+
+     ro('· Food sales',money(fs),{f:'as % of sales: '+P(fs)})+
+     ro('· Beverage sales',money(bs),{f:'as % of sales: '+P(bs)})+
+     (os?ro('· Other sales',money(os),{f:'as % of sales: '+P(os)}):'')+
+     ro('Cost of sales',money(cos),{f:'food '+pct(fs?fc/fs:NaN)+' · bev '+pct(bs?bc/bs:NaN)})+
+     ro('Gross profit',money(gp),{f:'Sales − Cost of sales',pos:gp>=0,neg:gp<0})+
+     ro('Labour & related',money(lab),{f:'as % of sales: '+P(lab)})+
+     ro('Prime cost',money(prime),{f:'Cost of sales + Labour',tag:P(prime),tagBg:'#b9852b'})+
+     ro('Operating expenses',money(op),{f:'as % of sales: '+P(op)})+
+     ro('Departmental profit',money(dp),{f:'Sales − Prime − Operating',cls:'key',pos:dp>=0,neg:dp<0})+
+     ro('Profit margin',P(dp),{f:'Dept. profit ÷ Sales'})+
+     ro('Average check',money(cov?sales/cov:NaN),{f:'Sales ÷ Covers'});
+ };}
+});
+
+/* A3 · Horizontal Analysis */
+reg({id:'horiz',group:'Profit & P&L',name:'Horizontal Analysis',sub:'L3',
+ html:`
+ <div class="card"><h3>Compare two periods (or Actual vs Budget)</h3>
+  <div class="tbl-wrap"><table class="dt" id="hz_tbl">
+   <thead><tr><th class="l">Line item</th><th>Prior / Budget</th><th>Current / Actual</th><th>Variance ${CUR}</th><th>Variance %</th><th></th></tr></thead>
+   <tbody></tbody>
+  </table></div>
+  <button class="addrow" id="hz_add">+ Add line</button>
+  <div class="note">Variance <b>$</b> = Current − Prior. Variance <b>%</b> = (Current − Prior) ÷ Prior. Positive isn't always good — for cost lines a rise is unfavourable.</div>
+ </div>`,
+ init(){
+   const tb=$('#hz_tbl tbody');
+   const seed=[['Total sales',200000,180000],['Cost of sales',64000,55000],['Labour',102000,99000]];
+   function row(name='',p='',c=''){
+     const tr=document.createElement('tr');
+     tr.innerHTML=`<td class="l"><input class="l" value="${name}" placeholder="line"></td>
+       <td><input class="mono" inputmode="decimal" value="${p}"></td>
+       <td><input class="mono" inputmode="decimal" value="${c}"></td>
+       <td class="calc-cell v">—</td><td class="calc-cell p">—</td>
+       <td><button class="del">×</button></td>`;
+     tr.querySelector('.del').onclick=()=>{tr.remove();RECALC.horiz();};
+     tb.appendChild(tr);
+   }
+   seed.forEach(r=>row(...r));
+   $('#hz_add').onclick=()=>{row();};
+   RECALC.horiz=()=>{
+     tb.querySelectorAll('tr').forEach(tr=>{
+       const ins=tr.querySelectorAll('input');const p=parseFloat(ins[1].value)||0,c=parseFloat(ins[2].value)||0;
+       const v=c-p; tr.querySelector('.v').textContent=fmtN(v);
+       const pe=tr.querySelector('.p'); pe.textContent= p? ((v/p*100).toFixed(1)+'%'):'—';
+       pe.style.color = v>0?'var(--pos)':(v<0?'var(--neg)':'var(--ink2)');
+     });
+   };
+ }
+});
+
+/* A4 · Budgeting */
+reg({id:'budget',group:'Profit & P&L',name:'Budgeting',sub:'L4 · L11',
+ html:`
+ <div class="card"><h3>Actual (base year)</h3>
+  <div class="grid g3">
+    ${fld('b_cov','Covers','','this year')}
+    ${fld('b_fs','Food sales','',null,CUR)}
+    ${fld('b_bs','Beverage sales','',null,CUR)}
+    ${fld('b_fc','Food cost','',null,CUR)}
+    ${fld('b_bc','Beverage cost','',null,CUR)}
+    ${fld('b_lab','Labour','',null,CUR)}
+    ${fld('b_op','Operating exp.','',null,CUR)}
+  </div>
+ </div>
+ <div class="card"><h3>Assumptions for next year</h3>
+  <div class="grid g3">
+    ${fld('b_dcov','Cover change','-5','% (e.g. -5 means −5%)','%')}
+    ${fld('b_price','Price increase','8','menu prices','%')}
+    ${fld('b_sup','Supplier increase','2.5','F&B cost prices','%')}
+    ${fld('b_dlab','Labour increase','7',null,'%')}
+  </div>
+  <div class="note">Method: budgeted covers grow by the cover change; average check & average cost scale per cover; operating expenses keep the <b>same % of sales</b> as the base year.</div>
+ </div>
+ <div class="card"><h3>Budget</h3><div class="readout" id="b_out"></div></div>`,
+ init(){RECALC.budget=()=>{
+   const cov=val('b_cov'),fs=val('b_fs'),bs=val('b_bs'),fc=val('b_fc'),bc=val('b_bc'),lab=val('b_lab'),op=val('b_op');
+   const gC=1+val('b_dcov')/100,gP=1+val('b_price')/100,gS=1+val('b_sup')/100,gL=1+val('b_dlab')/100;
+   const bcov=Math.round(cov*gC);
+   const perCov=(x)=>cov?x/cov:0;
+   const bfs=perCov(fs)*gP*bcov, bbs=perCov(bs)*gP*bcov;
+   const bfc=perCov(fc)*gS*bcov, bbc=perCov(bc)*gS*bcov;
+   const blab=lab*gL;
+   const aSales=fs+bs, bSales=bfs+bbs;
+   const bop=aSales? (op/aSales)*bSales : 0;
+   const bcos=bfc+bbc, bprime=bcos+blab, bdp=bSales-bprime-bop;
+   $('#b_out').innerHTML=
+     ro('Budgeted covers',fmtN(bcov,0),{f:'Actual × (1 + cover change)',cls:'key'})+
+     ro('Food sales',money(bfs),{f:'avg check ×'+gP.toFixed(3)+' × covers'})+
+     ro('Beverage sales',money(bbs))+
+     ro('Total sales',money(bSales),{cls:'key'})+
+     ro('Food cost',money(bfc),{f:'now '+pct(bfs?bfc/bfs:NaN)+' of food sales'})+
+     ro('Beverage cost',money(bbc),{f:'now '+pct(bbs?bbc/bbs:NaN)+' of bev sales'})+
+     ro('Labour',money(blab),{f:'Actual × '+gL.toFixed(2)})+
+     ro('Operating expenses',money(bop),{f:'same % of sales as actual'})+
+     ro('Departmental profit',money(bdp),{f:'Sales − Prime − Operating',cls:'key',pos:bdp>=0,neg:bdp<0})+
+     ro('Profit margin',pct(bSales?bdp/bSales:NaN));
+ };}
+});
+
+/* A5 · Break-Even Point */
+reg({id:'bep',group:'Profit & P&L',name:'Break-Even Point',sub:'L4',
+ html:`
+ <div class="card"><h3>Period data</h3>
+  <div class="grid g3">
+    ${fld('be_cov','Covers','',null)}
+    ${fld('be_sales','Sales','',null,CUR)}
+    ${fld('be_vc','Variable costs','',null,CUR)}
+    ${fld('be_fc','Fixed costs','',null,CUR)}
+    ${fld('be_days','Days in period','30','for break-even in days')}
+    ${fld('be_tp','Target profit','','optional',CUR)}
+  </div>
+ </div>
+ <div class="split">
+   <div class="card"><h3>Per-cover & margins</h3><div class="readout" id="be_o1"></div></div>
+   <div class="card"><h3>Break-even</h3><div class="readout" id="be_o2"></div></div>
+ </div>`,
+ init(){RECALC.bep=()=>{
+   const cov=val('be_cov'),s=val('be_sales'),vc=val('be_vc'),fc=val('be_fc'),days=val('be_days'),tp=val('be_tp');
+   const spc=cov?s/cov:0, vcpc=cov?vc/cov:0, vcpct=s?vc/s:0;
+   const cmpc=spc-vcpc, cm=s-vc, cmpct=s?cm/s:0;
+   const bepCov=cmpc?fc/cmpc:NaN, bepSales=cmpct?fc/cmpct:NaN;
+   const adr=days?s/days:0, bepDays=adr?bepSales/adr:NaN;
+   const tSales=cmpct?(fc+tp)/cmpct:NaN, tCov=cmpc?(fc+tp)/cmpc:NaN;
+   $('#be_o1').innerHTML=
+     ro('Sales per cover',money(spc),{f:'Sales ÷ Covers'})+
+     ro('Variable cost / cover',money(vcpc),{f:'Variable ÷ Covers'})+
+     ro('Variable cost %',pct(vcpct),{f:'Variable ÷ Sales'})+
+     ro('Contribution margin / cover',money(cmpc),{f:'Sales/cover − VC/cover',cls:'key'})+
+     ro('Contribution margin',money(cm),{f:'Sales − Variable costs'})+
+     ro('Contribution margin %',pct(cmpct),{f:'CM ÷ Sales'});
+   $('#be_o2').innerHTML=
+     ro('Break-even in covers',fmtN(bepCov,0),{f:'Fixed ÷ CM per cover',cls:'key'})+
+     ro('Break-even in sales',money(bepSales),{f:'Fixed ÷ CM%',cls:'key'})+
+     ro('Average daily revenue',money(adr),{f:'Sales ÷ Days'})+
+     ro('Break-even in days',fmtN(bepDays,1),{f:'BE sales ÷ Avg daily revenue'})+
+     (tp?ro('Sales for target profit',money(tSales),{f:'(Fixed + Target) ÷ CM%'}):'')+
+     (tp?ro('Covers for target profit',fmtN(tCov,0),{f:'(Fixed + Target) ÷ CM/cover'}):'');
+ };}
+});
+/* ========================================================= */
+/* GROUP B — REVENUE & MENU                                  */
+/* ========================================================= */
+
+/* B1 · Operational KPIs */
+reg({id:'kpi',group:'Revenue & Menu',name:'Operational KPIs',sub:'L5',
+ html:`
+ <div class="card"><h3>Capacity</h3>
+  <div class="grid g3">
+    ${fld('k_seats','Seats','',null)}
+    ${fld('k_hours','Hours open / day','7',null,'h')}
+    ${fld('k_cycle','Service cycle time','120','minutes per cover','min')}
+  </div>
+ </div>
+ <div class="card"><h3>Activity</h3>
+  <div class="grid g3">
+    ${fld('k_cov','Total covers','',null)}
+    ${fld('k_sales','Total sales','',null,CUR)}
+    ${fld('k_days','Days in the data','7','1 = single day')}
+  </div>
+ </div>
+ <div class="split">
+   <div class="card"><h3>Revenue per guest & seat</h3><div class="readout" id="k_o1"></div></div>
+   <div class="card"><h3>Capacity use</h3><div class="readout" id="k_o2"></div></div>
+ </div>`,
+ init(){RECALC.kpi=()=>{
+   const seats=val('k_seats'),hours=val('k_hours'),cycle=val('k_cycle');
+   const cov=val('k_cov'),sales=val('k_sales'),days=val('k_days')||1;
+   const avgChk=cov?sales/cov:0;
+   const revpash=(seats&&hours&&days)?sales/(seats*hours*days):0;
+   const revpas=(seats&&days)?sales/(seats*days):0;
+   const covDay=cov/days, seatTurn=seats?covDay/seats:0;
+   const idealTurn=cycle?(hours*60)/cycle:0;
+   const maxCap=seats*idealTurn;
+   const occ=idealTurn?seatTurn/idealTurn:0;
+   $('#k_o1').innerHTML=
+     ro('Average check',money(avgChk),{f:'Sales ÷ Covers',cls:'key'})+
+     ro('RevPASH',money(revpash),{f:'Sales ÷ (Seats × Hours × Days)',cls:'key'})+
+     ro('RevPAS',money(revpas),{f:'Sales ÷ (Seats × Days)'});
+   $('#k_o2').innerHTML=
+     ro('Covers per day',fmtN(covDay,1),{f:'Covers ÷ Days'})+
+     ro('Seat turnover / day',fmtN(seatTurn,2),{f:'Covers per day ÷ Seats',cls:'key'})+
+     ro('Ideal seat turnover',fmtN(idealTurn,2),{f:'(Hours × 60) ÷ Cycle time'})+
+     ro('Maximum capacity / day',fmtN(maxCap,0),{f:'Seats × Ideal turnover'})+
+     ro('Occupancy %',pct(occ),{f:'Seat turnover ÷ Ideal turnover',cls:'key'});
+ };}
+});
+
+/* B2 · Menu Pricing */
+reg({id:'pricing',group:'Revenue & Menu',name:'Menu Pricing',sub:'L6',
+ html:`
+ <div class="card"><h3>Cost-to-price (food cost % method)</h3>
+  <div class="grid g3">
+    ${fld('pr_cost','Cost per portion','',null,CUR)}
+    ${fld('pr_fc','Target food cost %','30','the % you want','%')}
+    ${fld('pr_vat','VAT to add','8.1','optional','%')}
+  </div>
+  <div class="readout" id="pr_out"></div>
+  <div class="note">Ideal selling price = <b>Cost ÷ Food-cost %</b>. The pricing factor is just <b>1 ÷ Food-cost %</b> — multiply any cost by it to get the base price.</div>
+ </div>`,
+ init(){RECALC.pricing=()=>{
+   const cost=val('pr_cost'),fc=val('pr_fc')/100,vat=val('pr_vat')/100;
+   const ideal=fc?cost/fc:0, factor=fc?1/fc:0, withVat=ideal*(1+vat);
+   const charm=Math.floor(withVat)+0.50<withVat?Math.ceil(withVat)-0.05:Math.floor(withVat)+0.95;
+   $('#pr_out').innerHTML=
+     ro('Pricing factor',fmtN(factor,2)+'×',{f:'1 ÷ Food-cost %'})+
+     ro('Ideal selling price (excl. VAT)',money(ideal),{f:'Cost ÷ Food-cost %',cls:'key'})+
+     ro('Price incl. VAT',money(withVat),{f:'× (1 + VAT)'})+
+     ro('Charm-priced suggestion',money(charm),{f:'rounded to .95 / psychological'});
+ };}
+});
+
+/* B3 · Menu Engineering & OMNES */
+reg({id:'menueng',group:'Revenue & Menu',name:'Menu Engineering + OMNES',sub:'L7',
+ html:`
+ <div class="card"><h3>Menu items</h3>
+  <div class="pillrow"><span class="pill">Star = high profit + popular</span><span class="pill">Plow Horse = popular, low profit</span><span class="pill">Puzzle = profitable, unpopular</span><span class="pill">Dog = neither</span></div>
+  <div class="field" style="max-width:200px;margin-bottom:12px;">
+    <label>VAT included in price?</label>
+    <select id="me_vat"><option value="0">No — prices are net</option><option value="8.1">Yes — 8.1%</option><option value="7.7">Yes — 7.7%</option><option value="custom">Custom…</option></select>
+  </div>
+  <div class="field" id="me_vatc" style="display:none;max-width:200px;margin-bottom:12px;">${fld('me_vatv','Custom VAT %','8.1',null,'%')}</div>
+  <div class="tbl-wrap"><table class="dt" id="me_tbl">
+   <thead><tr><th class="l">Item</th><th>Price</th><th>Food cost %</th><th>Units sold</th>
+     <th>GP / unit</th><th>Pop %</th><th>Class</th><th></th></tr></thead>
+   <tbody></tbody>
+   <tfoot><tr class="totrow"><td class="l">Menu totals</td><td class="calc-cell" id="me_tprice"></td>
+     <td class="calc-cell" id="me_tfc"></td><td class="calc-cell" id="me_tunits"></td>
+     <td class="calc-cell" id="me_tgp"></td><td class="calc-cell">100%</td><td></td><td></td></tr></tfoot>
+  </table></div>
+  <button class="addrow" id="me_add">+ Add item</button>
+ </div>
+ <div class="split">
+   <div class="card"><h3>Menu averages</h3><div class="readout" id="me_avg"></div></div>
+   <div class="card"><h3>OMNES price spread</h3><div class="readout" id="me_omnes"></div></div>
+ </div>`,
+ init(){
+   const tb=$('#me_tbl tbody');
+   const seed=[['BB Burger',42,25.6,343],['Sole meunière',72,27.7,194],['Vegan Burger',39,23.6,297],['Pumpkin curry',32,21.9,343],['Beef fillet',69,30.8,294]];
+   function row(n='',p='',f='',u=''){
+     const tr=document.createElement('tr');
+     tr.innerHTML=`<td class="l"><input class="l" value="${n}" placeholder="dish"></td>
+       <td><input class="mono" inputmode="decimal" value="${p}"></td>
+       <td><input class="mono" inputmode="decimal" value="${f}"></td>
+       <td><input class="mono" inputmode="decimal" value="${u}"></td>
+       <td class="calc-cell gp">—</td><td class="calc-cell pop">—</td><td class="calc-cell cls">—</td>
+       <td><button class="del">×</button></td>`;
+     tr.querySelector('.del').onclick=()=>{tr.remove();RECALC.menueng();};
+     tb.appendChild(tr);
+   }
+   seed.forEach(r=>row(...r));
+   $('#me_add').onclick=()=>row();
+   $('#me_vat').onchange=e=>{$('#me_vatc').style.display=e.target.value==='custom'?'block':'none';RECALC.menueng();};
+   RECALC.menueng=()=>{
+     let vsel=$('#me_vat').value; let vat= vsel==='custom'? val('me_vatv')/100 : parseFloat(vsel)/100;
+     const rows=[...tb.querySelectorAll('tr')];
+     let data=rows.map(tr=>{const i=tr.querySelectorAll('input');
+       const priceIn=parseFloat(i[1].value)||0, fcp=(parseFloat(i[2].value)||0)/100, units=parseFloat(i[3].value)||0;
+       const net=priceIn/(1+vat); const fc$=fcp*net; const gp=net-fc$;
+       return {tr,net,fc$,gp,units,priceIn};});
+     const totUnits=data.reduce((s,d)=>s+d.units,0);
+     const totGP=data.reduce((s,d)=>s+d.gp*d.units,0);
+     const totFC=data.reduce((s,d)=>s+d.fc$*d.units,0);
+     const totRev=data.reduce((s,d)=>s+d.net*d.units,0);
+     const avgGP=totUnits?totGP/totUnits:0;
+     const n=data.filter(d=>d.units>0||d.priceIn>0).length || data.length;
+     const idealPop=n?(1/n)*0.70:0;
+     data.forEach(d=>{
+       const pop=totUnits?d.units/totUnits:0;
+       const hiGP=d.gp>=avgGP, hiPop=pop>=idealPop;
+       const cls=hiGP&&hiPop?'Star':(!hiGP&&hiPop?'Plow':(hiGP&&!hiPop?'Puzzle':'Dog'));
+       const label={Star:'Star',Plow:'Plow Horse',Puzzle:'Puzzle',Dog:'Dog'}[cls];
+       d.tr.querySelector('.gp').textContent=fmtN(d.gp);
+       d.tr.querySelector('.pop').textContent=pct(pop);
+       d.tr.querySelector('.cls').innerHTML=`<span class="cat ${cls}">${label}</span>`;
+     });
+     $('#me_tunits').textContent=fmtN(totUnits,0);
+     $('#me_tgp').textContent=fmtN(totGP);
+     $('#me_tfc').textContent=pct(totRev?totFC/totRev:NaN);
+     $('#me_tprice').textContent='';
+     $('#me_avg').innerHTML=
+       ro('Total units sold',fmtN(totUnits,0))+
+       ro('Total menu revenue (net)',money(totRev))+
+       ro('Total gross profit',money(totGP),{cls:'key'})+
+       ro('Average GP / unit',money(avgGP),{f:'Total GP ÷ Units — the profit cut-off'})+
+       ro('Ideal avg popularity',pct(idealPop),{f:'(100% ÷ items) × 70% — the popularity cut-off'})+
+       ro('Menu food cost %',pct(totRev?totFC/totRev:NaN),{f:'Total FC ÷ Total revenue'});
+     // OMNES
+     const prices=data.map(d=>d.net).filter(x=>x>0);
+     if(prices.length){
+       const mx=Math.max(...prices),mn=Math.min(...prices),ratio=mn?mx/mn:0;
+       const len=(mx-mn)/3;
+       const cnt=[0,0,0];
+       prices.forEach(p=>{ if(p<mn+len)cnt[0]++; else if(p<mn+2*len)cnt[1]++; else cnt[2]++; });
+       const avgCheck=totUnits?totRev/totUnits:0, avgPrice=prices.reduce((a,b)=>a+b,0)/prices.length;
+       $('#me_omnes').innerHTML=
+         ro('Price ratio (max ÷ min)',fmtN(ratio,2),{f:CUR+' '+fmtN(mx)+' ÷ '+CUR+' '+fmtN(mn),tag: ratio>2.5?'use 3 ranges':'one range ok',tagBg: ratio>2.5?'#b9852b':'#15706b'})+
+         ro('Low range',cnt[0]+' items',{f:money(mn)+' – '+money(mn+len)})+
+         ro('Mid range',cnt[1]+' items',{f:money(mn+len)+' – '+money(mn+2*len)})+
+         ro('High range',cnt[2]+' items',{f:money(mn+2*len)+' – '+money(mx)})+
+         ro('Average check / plate',money(avgCheck),{f:'Revenue ÷ units'})+
+         ro('Average menu price',money(avgPrice),{f:'simple average of prices'})+
+         ro('Check-to-price ratio',fmtN(avgPrice?avgCheck/avgPrice:NaN,2),{f:'≈1 means guests pick mid-priced dishes',cls:'key'});
+     } else $('#me_omnes').innerHTML=ro('Add prices to see OMNES','—');
+   };
+ }
+});
+
+/* ========================================================= */
+/* GROUP C — COST CONTROL                                    */
+/* ========================================================= */
+
+/* C1 · Recipe Costing */
+reg({id:'recipe',group:'Cost Control',name:'Recipe Costing',sub:'L10 · L11',
+ html:`
+ <div class="card"><h3>Ingredients</h3>
+  <div class="note" style="margin-top:0;margin-bottom:14px;"><b>AP$/unit</b> = purchase price for one recipe-unit (e.g. oil at ${CUR} 13.58 / 1.5 L → 0.00905 per mL). <b>EP$/unit</b> = AP$/unit ÷ Yield %. <b>Recipe cost</b> = EP$/unit × Quantity.</div>
+  <div class="tbl-wrap"><table class="dt" id="rc_tbl">
+   <thead><tr><th class="l">Ingredient</th><th>Qty (EP)</th><th>AP ${CUR}/unit</th><th>Yield %</th><th>EP ${CUR}/unit</th><th>Recipe cost</th><th></th></tr></thead>
+   <tbody></tbody>
+   <tfoot><tr class="totrow"><td class="l" colspan="5">Total recipe cost</td><td class="calc-cell" id="rc_tot"></td><td></td></tr></tfoot>
+  </table></div>
+  <button class="addrow" id="rc_add">+ Add ingredient</button>
+ </div>
+ <div class="card"><h3>Yield & price</h3>
+  <div class="grid g3">
+    ${fld('rc_port','Number of portions','4',null)}
+    ${fld('rc_price','Menu price / portion','',null,CUR)}
+    ${fld('rc_budfc','Budget food cost %','25','target','%')}
+  </div>
+  <div class="readout" id="rc_out"></div>
+ </div>`,
+ init(){
+   const tb=$('#rc_tbl tbody');
+   const seed=[['Scallops',8,3.70,100],['Arborio rice',400,0.0052,99],['White wine',1,5,98],['Parmesan',160,0.027,85],['Butter',40,0.014,97]];
+   function row(n='',q='',ap='',y=''){
+     const tr=document.createElement('tr');
+     tr.innerHTML=`<td class="l"><input class="l" value="${n}" placeholder="item"></td>
+       <td><input class="mono" inputmode="decimal" value="${q}"></td>
+       <td><input class="mono" inputmode="decimal" value="${ap}"></td>
+       <td><input class="mono" inputmode="decimal" value="${y}"></td>
+       <td class="calc-cell ep">—</td><td class="calc-cell rcst">—</td>
+       <td><button class="del">×</button></td>`;
+     tr.querySelector('.del').onclick=()=>{tr.remove();RECALC.recipe();};
+     tb.appendChild(tr);
+   }
+   seed.forEach(r=>row(...r));
+   $('#rc_add').onclick=()=>row();
+   RECALC.recipe=()=>{
+     let tot=0;
+     tb.querySelectorAll('tr').forEach(tr=>{const i=tr.querySelectorAll('input');
+       const q=parseFloat(i[1].value)||0,ap=parseFloat(i[2].value)||0,y=(parseFloat(i[3].value)||0)/100;
+       const ep=y?ap/y:0, cst=ep*q; tot+=cst;
+       tr.querySelector('.ep').textContent=fmtN(ep,4); tr.querySelector('.rcst').textContent=fmtN(cst,3);});
+     $('#rc_tot').textContent=money(tot);
+     const port=val('rc_port')||1, price=val('rc_price'), bud=val('rc_budfc')/100;
+     const perPort=tot/port, margin=price-perPort, fcPot=price?perPort/price:0, ideal=bud?perPort/bud:0;
+     $('#rc_out').innerHTML=
+       ro('Cost per portion',money(perPort),{f:'Total recipe cost ÷ portions',cls:'key'})+
+       ro('Margin per portion',money(margin),{f:'Menu price − cost per portion',pos:margin>=0,neg:margin<0})+
+       ro('Potential food cost %',pct(fcPot),{f:'Cost per portion ÷ Menu price',cls:'key'})+
+       ro('Ideal selling price',money(ideal),{f:'Cost per portion ÷ Budget FC%'});
+   };
+ }
+});
+
+/* C2 · Actual Food Cost */
+reg({id:'actfc',group:'Cost Control',name:'Actual Food Cost',sub:'L10',
+ html:`
+ <div class="card"><h3>Cost of food consumed</h3>
+  <div class="grid g2">
+    ${fld('af_open','Opening inventory','',null,CUR)}
+    ${fld('af_purch','Direct purchases','',null,CUR)}
+    ${fld('af_trin','Transfers in to kitchen','storeroom etc.',null,CUR)}
+    ${fld('af_close','Closing inventory','',null,CUR)}
+  </div>
+ </div>
+ <div class="card"><h3>Adjustments to cost of food sold (at cost price)</h3>
+  <div class="grid g2">
+    ${fld('af_barin','+ Transfer bar → kitchen','',null,CUR)}
+    ${fld('af_kbout','− Transfer kitchen → bar','',null,CUR)}
+    ${fld('af_promo','− Promotional meals','at cost',null,CUR)}
+    ${fld('af_emp','− Employee meals','at cost',null,CUR)}
+    ${fld('af_gratis','− Gratis / comps','at cost',null,CUR)}
+    ${fld('af_sales','Food sales','for the %',null,CUR)}
+  </div>
+ </div>
+ <div class="card"><h3>Result</h3><div class="readout" id="af_out"></div></div>`,
+ init(){RECALC.actfc=()=>{
+   const consumed=val('af_open')+val('af_purch')+val('af_trin')-val('af_close');
+   const sold=consumed+val('af_barin')-val('af_kbout')-val('af_promo')-val('af_emp')-val('af_gratis');
+   const sales=val('af_sales');
+   $('#af_out').innerHTML=
+     ro('Cost of food consumed',money(consumed),{f:'Opening + Purchases + Transfers in − Closing',cls:'key'})+
+     ro('Cost of food sold',money(sold),{f:'Consumed + bar→kit − kit→bar − promo − staff − gratis',cls:'key'})+
+     ro('Actual food cost %',pct(sales?sold/sales:NaN),{f:'Cost of food sold ÷ Food sales',cls:'key'});
+ };}
+});
+
+/* C3 · Potential Food Cost */
+reg({id:'potfc',group:'Cost Control',name:'Potential Food Cost',sub:'L11',
+ html:`
+ <div class="card"><h3>Menu mix</h3>
+  <div class="tbl-wrap"><table class="dt" id="pf_tbl">
+   <thead><tr><th class="l">Item</th><th>Units sold</th><th>Recipe cost / dish</th><th>Price / dish</th>
+     <th>Potential FC</th><th>Revenue</th><th>Item FC %</th><th></th></tr></thead>
+   <tbody></tbody>
+   <tfoot><tr class="totrow"><td class="l" colspan="4">Totals</td>
+     <td class="calc-cell" id="pf_tc"></td><td class="calc-cell" id="pf_tr"></td><td class="calc-cell" id="pf_tp"></td><td></td></tr></tfoot>
+  </table></div>
+  <button class="addrow" id="pf_add">+ Add item</button>
+ </div>
+ <div class="card"><h3>Result & variance</h3>
+   <div class="grid g2" style="max-width:420px;">${fld('pf_actual','Actual food cost % (optional)','','from the Actual FC tool','%')}</div>
+   <div class="readout" id="pf_out"></div>
+ </div>`,
+ init(){
+   const tb=$('#pf_tbl tbody');
+   const seed=[['Caesar Salad',250,7.95,34],['Burrata',210,6.15,27],['Niçoise',180,8.56,35],['Green Salad',280,5.84,25]];
+   function row(n='',u='',c='',p=''){
+     const tr=document.createElement('tr');
+     tr.innerHTML=`<td class="l"><input class="l" value="${n}" placeholder="dish"></td>
+       <td><input class="mono" inputmode="decimal" value="${u}"></td>
+       <td><input class="mono" inputmode="decimal" value="${c}"></td>
+       <td><input class="mono" inputmode="decimal" value="${p}"></td>
+       <td class="calc-cell pfc">—</td><td class="calc-cell rev">—</td><td class="calc-cell ifc">—</td>
+       <td><button class="del">×</button></td>`;
+     tr.querySelector('.del').onclick=()=>{tr.remove();RECALC.potfc();};
+     tb.appendChild(tr);
+   }
+   seed.forEach(r=>row(...r));
+   $('#pf_add').onclick=()=>row();
+   RECALC.potfc=()=>{
+     let tc=0,tr_=0;
+     tb.querySelectorAll('tr').forEach(tr=>{const i=tr.querySelectorAll('input');
+       const u=parseFloat(i[1].value)||0,c=parseFloat(i[2].value)||0,p=parseFloat(i[3].value)||0;
+       const pfc=u*c, rev=u*p, ifc=p?c/p:0; tc+=pfc; tr_+=rev;
+       tr.querySelector('.pfc').textContent=fmtN(pfc); tr.querySelector('.rev').textContent=fmtN(rev);
+       tr.querySelector('.ifc').textContent=pct(ifc);});
+     $('#pf_tc').textContent=money(tc);$('#pf_tr').textContent=money(tr_);
+     const totPct=tr_?tc/tr_:0; $('#pf_tp').textContent=pct(totPct);
+     const act=val('pf_actual')/100;
+     $('#pf_out').innerHTML=
+       ro('Total potential food cost',money(tc),{f:'Σ (units × recipe cost)'})+
+       ro('Total revenue',money(tr_),{f:'Σ (units × price)'})+
+       ro('Potential food cost %',pct(totPct),{f:'Potential cost ÷ Revenue',cls:'key'})+
+       (act?ro('Variance vs actual',pct(act-totPct)+' pts',{f:'Actual − Potential (the controllable gap)',neg:(act-totPct)>0,pos:(act-totPct)<=0}):'');
+   };
+ }
+});
+
+/* C4 · Beverage / Pour Cost */
+reg({id:'bev',group:'Cost Control',name:'Beverage / Pour Cost',sub:'L12',
+ html:`
+ <div class="split">
+   <div class="card"><h3>Single-drink cost</h3>
+     <div class="grid g2">
+       ${fld('bv_bottle','Bottle / container cost','',null,CUR)}
+       ${fld('bv_size','Container size','750',null,'mL')}
+       ${fld('bv_pour','Pour / portion size','40',null,'mL')}
+       ${fld('bv_yield','Usable yield %','97','spillage etc.','%')}
+       ${fld('bv_price','Selling price / drink','',null,CUR)}
+     </div>
+     <div class="readout" id="bv_o1"></div>
+   </div>
+   <div class="card"><h3>Period pour cost %</h3>
+     <div class="grid g2">
+       ${fld('bv_cost','Cost of beverage sold','',null,CUR)}
+       ${fld('bv_sales','Beverage sales','',null,CUR)}
+     </div>
+     <div class="readout" id="bv_o2"></div>
+     <div class="note">Pour cost % = <b>Cost of beverage sold ÷ Beverage sales</b>. Bar targets are usually well below food (spirits often 15–20%).</div>
+   </div>
+ </div>`,
+ init(){RECALC.bev=()=>{
+   const bottle=val('bv_bottle'),size=val('bv_size'),pour=val('bv_pour'),y=val('bv_yield')/100,price=val('bv_price');
+   const usable=size*y, perMl=usable?bottle/usable:0, drinkCost=perMl*pour;
+   const drinks=pour?usable/pour:0, pourPct=price?drinkCost/price:0, margin=price-drinkCost;
+   $('#bv_o1').innerHTML=
+     ro('Drinks per container',fmtN(drinks,1),{f:'(Size × Yield) ÷ Pour'})+
+     ro('Cost per drink',money(drinkCost),{f:'Cost ÷ usable mL × Pour',cls:'key'})+
+     ro('Margin per drink',money(margin),{pos:margin>=0,neg:margin<0})+
+     ro('Pour cost %',pct(pourPct),{f:'Drink cost ÷ Price',cls:'key'});
+   const c=val('bv_cost'),s=val('bv_sales');
+   $('#bv_o2').innerHTML=
+     ro('Beverage / pour cost %',pct(s?c/s:NaN),{f:'Cost ÷ Sales',cls:'key'})+
+     ro('Gross profit',money(s-c),{f:'Sales − Cost',pos:(s-c)>=0,neg:(s-c)<0});
+ };}
+});
+
+/* C5 · ABC Classification */
+reg({id:'abc',group:'Cost Control',name:'ABC Inventory',sub:'L9',
+ html:`
+ <div class="card"><h3>Items</h3>
+  <div class="note" style="margin-top:0;margin-bottom:14px;">Each item's <b>consumption value</b> = quantity used × cost per unit. Rank by value: the <b>A</b> few items tie up most of the money and deserve the tightest control; <b>C</b> items are many but cheap. Cut-offs below are adjustable.</div>
+  <div class="grid g2" style="max-width:380px;margin-bottom:14px;">
+    ${fld('abc_a','A cut-off (cumulative %)','80',null,'%')}
+    ${fld('abc_b','B cut-off (cumulative %)','95',null,'%')}
+  </div>
+  <div class="tbl-wrap"><table class="dt" id="abc_tbl">
+   <thead><tr><th class="l">Product</th><th>Qty used</th><th>Cost / unit</th><th>Value</th><th>% of total</th><th>Cumulative %</th><th>Class</th><th></th></tr></thead>
+   <tbody></tbody>
+   <tfoot><tr class="totrow"><td class="l" colspan="3">Total annual consumption value</td><td class="calc-cell" id="abc_tot"></td><td colspan="4"></td></tr></tfoot>
+  </table></div>
+  <button class="addrow" id="abc_add">+ Add product</button>
+ </div>`,
+ init(){
+   const tb=$('#abc_tbl tbody');
+   const seed=[['Sesame Oil',2146,172],['Rice Bran Oil',2196,149],['Soybean Oil',1890,145],['Olive Oil',1972,82],['Sunflower Oil',886,140],['Vegetable Oil',2500,33],['Peanut Oil',575,154],['Walnut Oil',702,56]];
+   function row(n='',q='',c=''){
+     const tr=document.createElement('tr');
+     tr.innerHTML=`<td class="l"><input class="l" value="${n}" placeholder="product"></td>
+       <td><input class="mono" inputmode="decimal" value="${q}"></td>
+       <td><input class="mono" inputmode="decimal" value="${c}"></td>
+       <td class="calc-cell vv">—</td><td class="calc-cell pp">—</td><td class="calc-cell cc">—</td><td class="calc-cell kl">—</td>
+       <td><button class="del">×</button></td>`;
+     tr.querySelector('.del').onclick=()=>{tr.remove();RECALC.abc();};
+     tb.appendChild(tr);
+   }
+   seed.forEach(r=>row(...r));
+   $('#abc_add').onclick=()=>row();
+   RECALC.abc=()=>{
+     const rows=[...tb.querySelectorAll('tr')];
+     const arr=rows.map(tr=>{const i=tr.querySelectorAll('input');
+       return {tr,v:(parseFloat(i[1].value)||0)*(parseFloat(i[2].value)||0)};});
+     const tot=arr.reduce((s,d)=>s+d.v,0);
+     const ca=val('abc_a')/100, cb=val('abc_b')/100;
+     const sorted=[...arr].sort((a,b)=>b.v-a.v);
+     let cum=0;
+     sorted.forEach(d=>{ const share=tot?d.v/tot:0; cum+=share;
+       d.share=share; d.cum=cum; d.cls= cum<=ca?'A':(cum<=cb?'B':'C'); });
+     arr.forEach(d=>{
+       d.tr.querySelector('.vv').textContent=fmtN(d.v);
+       d.tr.querySelector('.pp').textContent=pct(d.share);
+       d.tr.querySelector('.cc').textContent=pct(d.cum);
+       d.tr.querySelector('.kl').innerHTML=`<span class="cat ${d.cls}">${d.cls}</span>`;
+     });
+     $('#abc_tot').textContent=money(tot);
+   };
+ }
+});
+/* ========================================================= */
+/* GROUP D — LABOUR                                          */
+/* ========================================================= */
+
+/* D1 · Staffing / FTE */
+reg({id:'staff',group:'Labour',name:'Staffing / FTE',sub:'L13',
+ html:`
+ <div class="card"><h3>The year</h3>
+  <div class="grid g3">
+    ${fld('st_total','Calendar days','365',null)}
+    ${fld('st_off','Weekly days off','52','1/week ≈ 52')}
+    ${fld('st_hol','Public holidays','10','venue closed')}
+    ${fld('st_vac','Vacation days','20','per employee')}
+    ${fld('st_sick','Average sick days','10','per employee')}
+    ${fld('st_shifts','Employee-shifts needed / open day','7','positions to cover')}
+  </div>
+ </div>
+ <div class="card"><h3>Staffing required</h3>
+  <div class="readout" id="st_out"></div>
+  <div class="note">Venue <b>open days</b> = Calendar − weekly closures − holidays. Each employee then loses their own rest days, vacation and sick days, so the <b>cover ratio</b> stretches every daily position into the headcount you must actually employ.</div>
+ </div>`,
+ init(){RECALC.staff=()=>{
+   const cal=val('st_total')||365, off=val('st_off'), hol=val('st_hol'), vac=val('st_vac'), sick=val('st_sick');
+   const open=cal-off-hol;                 // venue open days
+   const worked=open-off-vac-sick;          // days one employee works (course method)
+   const ratio=worked?open/worked:0;
+   const shifts=val('st_shifts');
+   const fte=shifts*ratio;
+   $('#st_out').innerHTML=
+     ro('Venue open days / year',fmtN(open,0),{f:'Calendar − weekly closures − holidays'})+
+     ro('Days one employee works',fmtN(worked,0),{f:'Open days − rest − vacation − sick'})+
+     ro('Cover ratio',fmtN(ratio,3),{f:'Open days ÷ Days worked'})+
+     ro('FTEs to hire',fmtN(fte,1),{f:'Shifts/day × Cover ratio',cls:'key'})+
+     ro('If full-time only',fmtN(Math.ceil(fte),0)+' people',{f:'round the FTEs up'});
+ };}
+});
+
+/* D2 · Productivity KPIs */
+reg({id:'prod',group:'Labour',name:'Productivity KPIs',sub:'L13',
+ html:`
+ <div class="card"><h3>Period totals</h3>
+  <div class="grid g2">
+    ${fld('pd_guests','Guests served','',null)}
+    ${fld('pd_sales','Total sales','',null,CUR)}
+    ${fld('pd_hours','Labour hours used','',null,'h')}
+    ${fld('pd_labor','Total labour cost','',null,CUR)}
+  </div>
+ </div>
+ <div class="card"><h3>Measures</h3><div class="readout" id="pd_out"></div></div>`,
+ init(){RECALC.prod=()=>{
+   const g=val('pd_guests'),s=val('pd_sales'),h=val('pd_hours'),l=val('pd_labor');
+   $('#pd_out').innerHTML=
+     ro('Average guest check',money(g?s/g:NaN),{f:'Sales ÷ Guests'})+
+     ro('Average wage / hour',money(h?l/h:NaN),{f:'Labour cost ÷ Hours'})+
+     ro('Labour cost %',pct(s?l/s:NaN),{f:'Labour cost ÷ Sales',cls:'key'})+
+     ro('Sales per labour hour',money(h?s/h:NaN),{f:'Sales ÷ Hours',cls:'key'})+
+     ro('Labour $ per guest',money(g?l/g:NaN),{f:'Labour cost ÷ Guests'})+
+     ro('Guests per labour $',fmtN(l?g/l:NaN,3),{f:'Guests ÷ Labour cost'})+
+     ro('Guests per labour hour',fmtN(h?g/h:NaN,2),{f:'Guests ÷ Hours'});
+ };}
+});
+
+/* D3 · Salary Increase Impact */
+reg({id:'salary',group:'Labour',name:'Salary Increase Impact',sub:'L13',
+ html:`
+ <div class="card"><h3>Wage change</h3>
+  <div class="grid g3">
+    ${fld('sa_labor','Current labour cost','',null,CUR)}
+    ${fld('sa_inc','Increase','',null,'%')}
+    ${fld('sa_sales','Sales (assumed unchanged)','',null,CUR)}
+  </div>
+  <div class="readout" id="sa_out"></div>
+  <div class="note">A raise lifts the <b>labour cost %</b> unless sales grow with it. Compare the before/after % against your target to see if it's affordable.</div>
+ </div>`,
+ init(){RECALC.salary=()=>{
+   const l=val('sa_labor'),inc=val('sa_inc')/100,s=val('sa_sales');
+   const after=l*(1+inc), before=s?l/s:0, aft=s?after/s:0;
+   $('#sa_out').innerHTML=
+     ro('Labour cost after increase',money(after),{f:'Current × (1 + increase)',cls:'key'})+
+     ro('Extra cost',money(after-l),{f:'the raise in '+CUR})+
+     ro('Labour cost % before',pct(before),{f:'Current ÷ Sales'})+
+     ro('Labour cost % after',pct(aft),{f:'New labour ÷ Sales',cls:'key',neg:true})+
+     ro('Percentage-point change','+'+pct(aft-before,2)+' pts',{f:'how much heavier payroll became'});
+ };}
+});
+
+/* ========================================================= */
+/* BOOTSTRAP                                                 */
+/* ========================================================= */
+(function(){
+  const nav=$('#nav'), panels=$('#panels');
+  // build nav grouped
+  const groups=[...new Set(MODULES.map(m=>m.group))];
+  let idx=1;
+  groups.forEach(g=>{
+    const h=document.createElement('div');h.className='navgroup';h.textContent=g;nav.appendChild(h);
+    MODULES.filter(m=>m.group===g).forEach(m=>{
+      m.num=String(idx++).padStart(2,'0');
+      const b=document.createElement('button');b.className='navlink';b.dataset.id=m.id;
+      b.innerHTML=`<span class="n">${m.num}</span><span>${m.name}<br><span style="font-size:10.5px;color:#6fa39d">${m.sub}</span></span>`;
+      b.onclick=()=>show(m.id);
+      nav.appendChild(b);
+    });
+  });
+  // build panels
+  MODULES.forEach(m=>{
+    const sec=document.createElement('section');sec.className='calc';sec.id='panel-'+m.id;
+    sec.innerHTML=`<div class="calc-head"><div class="eyebrow">${m.group} · Lesson ${m.sub.replace(/L|·/g,'').trim()}</div>
+      <h2>${m.name}</h2></div>${m.html}`;
+    panels.appendChild(sec);
+  });
+  // init each
+  MODULES.forEach(m=>{ try{ m.init(); }catch(e){ console.error(m.id,e); } });
+  // live recalc: any input in active panel
+  panels.addEventListener('input', e=>{
+    const sec=e.target.closest('.calc'); if(!sec)return;
+    const id=sec.id.replace('panel-',''); if(RECALC[id])RECALC[id]();
+  });
+  panels.addEventListener('change', e=>{
+    const sec=e.target.closest('.calc'); if(!sec)return;
+    const id=sec.id.replace('panel-',''); if(RECALC[id])RECALC[id]();
+  });
+  function show(id){
+    document.querySelectorAll('.calc').forEach(s=>s.classList.toggle('active',s.id==='panel-'+id));
+    document.querySelectorAll('.navlink').forEach(b=>b.classList.toggle('active',b.dataset.id===id));
+    const m=MODULES.find(x=>x.id===id);
+    $('#crumb').textContent=m? (m.num+' — '+m.name):'';
+    if(RECALC[id])RECALC[id]();
+    if(window.innerWidth<=880) window.scrollTo({top:0,behavior:'smooth'});
+  }
+  // currency
+  $('#curSel').addEventListener('change',e=>{
+    // reload to re-render labels with new symbol (simplest & safe)
+    CUR=e.target.value;
+    location.hash=CUR;            // remember choice
+    rebuildCurrencyLabels();
+  });
+  function rebuildCurrencyLabels(){
+    // re-run every calc so readouts use new symbol; static labels stay but values update
+    MODULES.forEach(m=>{ if(RECALC[m.id]) try{RECALC[m.id]();}catch(_){} });
+  }
+  if(location.hash){const c=decodeURIComponent(location.hash.slice(1));if(['CHF','$','€','£'].includes(c)){CUR=c;$('#curSel').value=c;}}
+  // run all once, open first
+  MODULES.forEach(m=>{ if(RECALC[m.id]) try{RECALC[m.id]();}catch(_){} });
+  show(MODULES[0].id);
+})();
+</script>
+</body>
+</html>
