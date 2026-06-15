@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>F&amp;B Financial Management — Elite Cheat Sheet</title>
+<style>
+  :root{
+    --bg:#f4f6f9; --panel:#ffffff; --ink:#161a22; --muted:#5a6577;
+    --line:#e2e7ef; --accent:#2f5fe0; --accent2:#0d9488;
+    --formula-bg:#eef3ff; --formula-ink:#0e2a6b;
+    --ex-bg:#fff7e6; --ex-line:#f0c674; --ex-ink:#6b4e00;
+    --trap-bg:#fdeef0; --trap-line:#e7a3ad; --trap-ink:#7a1b2b;
+    --rule-bg:#ecfdf6; --rule-line:#7fd1bb; --rule-ink:#0a5345;
+    --warn:#b3261e;
+    --chip:#eef1f6;
+    --radius:12px;
+    --mono:"SF Mono",ui-monospace,"Cascadia Code",Menlo,Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.5;font-size:15px;}
+
+  /* ---------- top bar ---------- */
+  .topbar{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);padding:12px 18px;}
+  .topbar .row{display:flex;align-items:center;gap:14px;flex-wrap:wrap;max-width:1280px;margin:0 auto;}
+  .brand{font-weight:800;font-size:17px;letter-spacing:-.2px;white-space:nowrap;}
+  .brand small{display:block;font-weight:500;color:var(--muted);font-size:11.5px;letter-spacing:0;}
+  .searchwrap{position:relative;flex:1;min-width:240px;}
+  #search{width:100%;padding:11px 40px 11px 40px;border:2px solid var(--line);border-radius:999px;
+    font-size:15px;outline:none;transition:border-color .15s;background:#fff;}
+  #search:focus{border-color:var(--accent);}
+  .searchwrap .mag{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:15px;}
+  .searchwrap .clr{position:absolute;right:10px;top:50%;transform:translateY(-50%);border:none;background:#e6e9ef;
+    color:#444;border-radius:999px;width:24px;height:24px;cursor:pointer;font-size:13px;line-height:1;display:none;}
+  .count{font-size:12.5px;color:var(--muted);white-space:nowrap;min-width:74px;text-align:right;}
+  .tbtn{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:8px;padding:8px 12px;
+    font-size:13px;cursor:pointer;white-space:nowrap;}
+  .tbtn:hover{border-color:var(--accent);color:var(--accent);}
+
+  /* ---------- nav chips ---------- */
+  nav.chips{position:sticky;top:64px;z-index:40;background:var(--bg);padding:10px 18px;border-bottom:1px solid var(--line);}
+  nav.chips .inner{max-width:1280px;margin:0 auto;display:flex;gap:7px;flex-wrap:wrap;}
+  nav.chips a{font-size:12.5px;text-decoration:none;color:var(--muted);background:var(--chip);
+    padding:5px 11px;border-radius:999px;border:1px solid transparent;white-space:nowrap;}
+  nav.chips a:hover{color:var(--accent);border-color:var(--accent);background:#fff;}
+
+  main{max-width:1280px;margin:0 auto;padding:18px 18px 80px;}
+
+  .tip{background:#eef3ff;border:1px solid #c9d8ff;border-radius:var(--radius);padding:12px 16px;
+    font-size:13.5px;color:#274690;margin-bottom:18px;}
+  .tip b{color:#16306e;}
+  kbd{background:#fff;border:1px solid #b9c3d6;border-bottom-width:2px;border-radius:5px;padding:1px 6px;
+    font-family:var(--mono);font-size:12px;}
+
+  section{margin:26px 0;scroll-margin-top:120px;}
+  .sec-head{display:flex;align-items:baseline;gap:10px;border-bottom:2px solid var(--ink);padding-bottom:6px;margin-bottom:14px;}
+  .sec-head h2{margin:0;font-size:19px;letter-spacing:-.3px;}
+  .sec-head .tag{font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px;}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px;}
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:13px 15px;}
+  .card .name{font-weight:700;font-size:14px;margin-bottom:7px;}
+  .card .formula{font-family:var(--mono);font-size:13.5px;background:var(--formula-bg);color:var(--formula-ink);
+    border-radius:8px;padding:9px 11px;line-height:1.55;white-space:normal;}
+  .card .formula + .formula{margin-top:6px;}
+  .card .note{font-size:12.5px;color:var(--muted);margin-top:8px;}
+  .card .note b{color:var(--ink);}
+  .card.full{grid-column:1/-1;}
+
+  /* worked example */
+  .ex{background:var(--ex-bg);border:1px solid var(--ex-line);border-left:4px solid var(--ex-line);
+    border-radius:10px;padding:12px 15px;}
+  .ex .name{font-weight:700;color:var(--ex-ink);font-size:13.5px;margin-bottom:6px;}
+  .ex .name::before{content:"🧮  ";}
+  .ex .steps{font-family:var(--mono);font-size:12.8px;color:#5b4400;line-height:1.7;white-space:pre-wrap;}
+
+  /* decision rule */
+  .rule{background:var(--rule-bg);border:1px solid var(--rule-line);border-left:4px solid var(--rule-line);
+    border-radius:10px;padding:12px 15px;}
+  .rule .name{font-weight:700;color:var(--rule-ink);font-size:13.5px;margin-bottom:6px;}
+  .rule .name::before{content:"✅  ";}
+  .rule .body{font-size:13px;color:#0a4438;}
+
+  /* quiz trap */
+  .trap{background:var(--trap-bg);border:1px solid var(--trap-line);border-left:4px solid var(--trap-line);
+    border-radius:10px;padding:11px 14px;}
+  .trap .q{font-weight:600;color:var(--trap-ink);font-size:13px;margin-bottom:5px;}
+  .trap .q::before{content:"Q  ";font-weight:800;opacity:.6;}
+  .trap .a{font-size:13px;color:#3a1118;}
+  .trap .a::before{content:"A  ";font-weight:800;color:var(--trap-ink);opacity:.6;}
+
+  /* generic table */
+  table.t{width:100%;border-collapse:collapse;font-size:13px;background:#fff;border-radius:8px;overflow:hidden;}
+  table.t th,table.t td{border:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top;}
+  table.t th{background:#f0f3f8;font-weight:700;}
+  table.t td b{color:var(--accent2);}
+
+  .warn{color:var(--warn);font-weight:600;}
+  mark{background:#ffe16b;color:inherit;border-radius:3px;padding:0 1px;}
+  .nohit{display:none;}
+  .noresults{text-align:center;color:var(--muted);padding:40px;font-size:15px;display:none;}
+
+  .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);margin-bottom:10px;}
+  .legend span{display:inline-flex;align-items:center;gap:5px;}
+  .legend i{width:11px;height:11px;border-radius:3px;display:inline-block;}
+
+  footer{max-width:1280px;margin:0 auto;padding:24px 18px;color:var(--muted);font-size:12px;border-top:1px solid var(--line);}
+
+  @media print{
+    .topbar,nav.chips,.tip,.legend{display:none!important;}
+    body{background:#fff;font-size:11px;}
+    .grid{grid-template-columns:repeat(2,1fr);gap:6px;}
+    .card,.ex,.rule,.trap{break-inside:avoid;border-color:#ccc;}
+    section{margin:12px 0;}
+    .nohit{display:block!important;}
+    .card .formula{background:#f0f0f0;color:#000;}
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="row">
+    <div class="brand">F&amp;B Financial Management<small>Elite open-book cheat sheet · EHL BOSC1</small></div>
+    <div class="searchwrap">
+      <span class="mag">🔎</span>
+      <input id="search" type="text" placeholder="Search any formula, term or topic…  (press / )" autocomplete="off" spellcheck="false">
+      <button class="clr" id="clr" title="Clear">✕</button>
+    </div>
+    <span class="count" id="count"></span>
+    <button class="tbtn" id="printbtn">🖨 Print / PDF</button>
+  </div>
+</header>
+
+<nav class="chips">
+  <div class="inner">
+    <a href="#use">How to use</a>
+    <a href="#found">Foundations</a>
+    <a href="#pnl">P&amp;L &amp; Profit</a>
+    <a href="#costpct">Cost %</a>
+    <a href="#cm">Contribution Margin</a>
+    <a href="#bep">Break-Even</a>
+    <a href="#revkpi">Revenue KPIs</a>
+    <a href="#guestkpi">Guest KPIs</a>
+    <a href="#menu">Menu Engineering</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#omnes">OMNES</a>
+    <a href="#yield">Yield / Butcher</a>
+    <a href="#purch">Purchasing</a>
+    <a href="#inv">Inventory</a>
+    <a href="#foodcost">Food Cost</a>
+    <a href="#bev">Beverage</a>
+    <a href="#labour">Labour</a>
+    <a href="#variance">Variance / Forecast</a>
+    <a href="#rules">Decision Rules</a>
+    <a href="#traps">Quiz Traps</a>
+  </div>
+</nav>
+
+<main>
+  <div class="tip" id="use">
+    <b>How to use this sheet.</b> Type in the search box to instantly filter every formula, definition and example — faster than Ctrl&nbsp;F.
+    Press <kbd>/</kbd> to jump to search, <kbd>Esc</kbd> to clear. Native <kbd>Ctrl</kbd>+<kbd>F</kbd> also works on the full page when the box is empty.
+    Use the chips above to jump to a topic. Hit <b>Print / PDF</b> for a paper copy (everything expands automatically).
+    <span class="legend" style="margin-top:8px">
+      <span><i style="background:var(--formula-bg);border:1px solid #bcd"></i>formula</span>
+      <span><i style="background:var(--ex-bg);border:1px solid var(--ex-line)"></i>worked example</span>
+      <span><i style="background:var(--rule-bg);border:1px solid var(--rule-line)"></i>decision rule</span>
+      <span><i style="background:var(--trap-bg);border:1px solid var(--trap-line)"></i>quiz trap</span>
+    </span>
+  </div>
+
+  <!-- ============ FOUNDATIONS ============ -->
+  <section id="found">
+    <div class="sec-head"><h2>Foundations &amp; Definitions</h2><span class="tag">Lessons 1–2</span></div>
+    <div class="grid">
+      <div class="card" data-search="institutional commercial establishment market oriented cost oriented subsidized">
+        <div class="name">Two types of F&amp;B establishment</div>
+        <div class="note"><b>Institutional</b> — supports people, not profit-driven, usually subsidized/outsourced, cost-oriented (school, hospital, prison). Very <b>concentrated</b> market.<br>
+        <b>Commercial</b> — operates for profit, market-oriented (restaurants, bars). Limited-service = concentrated; full-service = fragmented/concentrated.</div>
+      </div>
+      <div class="card" data-search="fragmented concentrated market share">
+        <div class="name">Fragmented vs Concentrated market</div>
+        <div class="note"><b>Fragmented</b> — no single firm has enough share to steer the industry. <b>Concentrated</b> — a few large firms dominate and shape direction.</div>
+      </div>
+      <div class="card" data-search="restaurant life cycle product life management development introduction growth maturity decline nokia">
+        <div class="name">Product / Restaurant life cycle</div>
+        <div class="note">1 <b>Development</b> (cost-heavy, no revenue) → 2 <b>Introduction</b> (slow sales, costly marketing) → 3 <b>Growth</b> (sales &amp; profit rise) → 4 <b>Maturity</b> (stable sales, lower cost, max profit — make it last) → 5 <b>Decline</b> (poorly-managed maturity). Nokia = failed to manage maturity.</div>
+      </div>
+      <div class="card" data-search="pestel political economic social technological environmental legal external internal viability factors">
+        <div class="name">Viability factors (PESTEL)</div>
+        <div class="note"><b>External (can't change):</b> PESTEL — Political, Economic, Social, Technological, Environmental, Legal — plus competition, suppliers, customers. <b>Internal (can change):</b> operations, staffing, quality, family. Failure driven more by internal factors.</div>
+      </div>
+      <div class="card" data-search="profit disruptor labour cost food waste coulage employee turnover theft">
+        <div class="name">Profit disruptors</div>
+        <div class="note"><b>Internal:</b> labour cost, food waste, coulage (theft of product), employee turnover, wait times, price gouging, portion control. <b>External:</b> food trends, Instagram ("camera eats first"), uniqueness, ease of modernization.</div>
+      </div>
+      <div class="card" data-search="cost breakdown 33 food 36 labour rent operating profit margin where money goes">
+        <div class="name">Where the money goes (typical)</div>
+        <div class="note">Food 33% · Labour 36% · Rent 9% · Direct OpEx 11% · Indirect OpEx 6% · <b>Profit ≈ 5%</b>. Main cost sources = Food, Beverage, Labour. <b>Beverage costs are grouped with food costs.</b></div>
+      </div>
+      <div class="card" data-search="financial statements balance sheet cash flow profit loss income statement assets liabilities equity">
+        <div class="name">3 key financial reports</div>
+        <div class="note"><b>Balance Sheet</b> (A = L + SE) · <b>Statement of Cash Flows</b> · <b>P&amp;L / Income Statement</b> (revenue − expenses over a period). P&amp;L = Income − Expenses = Total Sales − Expenses.</div>
+      </div>
+      <div class="card" data-search="p&l structure sales revenue prime costs controllable non-controllable expenses usali">
+        <div class="name">P&amp;L structure (order)</div>
+        <div class="note">1 <b>Sales/Revenue</b> (Food + Beverage + Merchandise) → 2 <b>Prime Costs</b> (Total Labour + Total Cost of Sales) → 3 <b>Controllable Expenses</b> (marketing, repairs) → 4 <b>Non-Controllable</b> (rent, depreciation). Standardized by <b>USALI</b>. Recorded <b>net of VAT</b>.</div>
+      </div>
+      <div class="card" data-search="variable fixed mixed cost cogs rent depreciation overtime as percentage of sales">
+        <div class="name">Variable / Fixed / Mixed costs</div>
+        <div class="note"><b>Variable</b> — moves with output (COGS, supplies, repairs). <b>Fixed</b> — unchanged by volume (rent, leasing, depreciation, subscriptions). <b>Mixed</b> — both (marketing, labour w/ overtime, music).</div>
+      </div>
+      <div class="card" data-search="cost behaviour percentage total dollars fixed goes down variable stays same">
+        <div class="name">Cost behaviour as sales rise</div>
+        <div class="note"><b>Fixed:</b> % of sales ↓, total $ same. <b>Variable:</b> % of sales same, total $ ↑. <b>Mixed:</b> % ↓, total $ ↑.</div>
+      </div>
+      <div class="card" data-search="direct indirect cost trace cost object labour materials">
+        <div class="name">Direct vs Indirect costs</div>
+        <div class="note"><b>Direct</b> — traceable to a specific product/unit (direct labour, materials). <b>Indirect</b> — apply to more than one activity, can't assign to one object.</div>
+      </div>
+      <div class="card" data-search="controllable non controllable expenses manager owner focus">
+        <div class="name">Controllable vs Non-controllable</div>
+        <div class="note"><b>Controllable</b> — manager can raise/lower (marketing, repairs). <b>Non-controllable</b> — manager can't (rent, depreciation). Manager focuses on controllable; owner on all.</div>
+      </div>
+      <div class="card" data-search="vertical horizontal analysis percentage of total sales variance trends">
+        <div class="name">Vertical vs Horizontal analysis</div>
+        <div class="note"><b>Vertical</b> — express each line as % of Total Sales ("where the money goes" in one period). <b>Horizontal</b> — compare same line across periods/budget via variance (spot trends).</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ P&L & PROFIT ============ -->
+  <section id="pnl">
+    <div class="sec-head"><h2>P&amp;L &amp; Profit Formulas</h2><span class="tag">profit waterfall</span></div>
+    <div class="grid">
+      <div class="card" data-search="gross profit total sales cost of sales cogs actual">
+        <div class="name">Gross Profit</div>
+        <div class="formula">Gross Profit = Total Sales − Total Cost of Sales</div>
+        <div class="formula">Actual Gross Profit = Revenue − COGS</div>
+        <div class="note">Per item: GP $ = Sale Price $ − Food Cost $ &nbsp;·&nbsp; GP % = Sale Price % − Food Cost %.</div>
+      </div>
+      <div class="card" data-search="total gross profit total item gross profit number sold">
+        <div class="name">Total Gross Profit</div>
+        <div class="formula">Total GP = Total Sales − Total Cost of Sales</div>
+        <div class="formula">Total Item GP = GP per item × number sold</div>
+      </div>
+      <div class="card" data-search="prime cost labour cost of sales total">
+        <div class="name">Prime Cost</div>
+        <div class="formula">Prime Cost = Total Cost of Sales + Total Labour</div>
+        <div class="note">The two biggest, most vital cost blocks. Profit on Prime Cost = Total Sales − Prime Costs.</div>
+      </div>
+      <div class="card" data-search="prime cost ratio percentage labour cogs total revenue 78">
+        <div class="name">Prime Cost Ratio %</div>
+        <div class="formula">Prime Cost % = (Labour + Cost of Sales) ÷ Total Revenue</div>
+        <div class="note">High prime cost = bad. ~78% is too high to open a restaurant financially.</div>
+      </div>
+      <div class="card" data-search="controllable income total sales prime cost total expenses">
+        <div class="name">Controllable Income</div>
+        <div class="formula">Controllable Income = Total Sales − Prime Cost − Total Expenses</div>
+      </div>
+      <div class="card" data-search="operating income ebit controllable non-controllable expenses">
+        <div class="name">Operating Income (EBIT)</div>
+        <div class="formula">Operating Income = Controllable Income − Total Non-Controllable Expenses</div>
+      </div>
+      <div class="card" data-search="income before taxes operating income interest expense">
+        <div class="name">Income Before Taxes</div>
+        <div class="formula">Income Before Taxes = Operating Income − Interest Expense</div>
+      </div>
+      <div class="card" data-search="net income before taxes income tax">
+        <div class="name">Net Income</div>
+        <div class="formula">Net Income = Income Before Taxes − Income Tax</div>
+      </div>
+      <div class="card" data-search="before tax profit after tax profit tax rate contribution margin share">
+        <div class="name">Before-Tax Profit</div>
+        <div class="formula">Before-Tax Profit = After-Tax Profit ÷ (1 − Tax Rate)</div>
+        <div class="note">Variant seen in notes: After-Tax Profit ÷ CM share (used inside after-tax BEP).</div>
+      </div>
+      <div class="card" data-search="total revenue fixed variable costs profit days open guests check">
+        <div class="name">Total Revenue (two views)</div>
+        <div class="formula">Total Revenue = Fixed Costs + Variable Costs + Profit</div>
+        <div class="formula">Total Revenue = Days Open × Guests/Day × Guest Check</div>
+      </div>
+      <div class="card" data-search="total cost of sales food beverage merchandise">
+        <div class="name">Total Cost of Sales</div>
+        <div class="formula">Total Cost of Sales = Food + Beverage + Merchandise (cost of each)</div>
+        <div class="note"><span class="warn">Note:</span> your notes write "food sales + beverage sales + merchandise" — read it as the <b>cost</b> of each category, not sales.</div>
+      </div>
+      <div class="card" data-search="total expenses operational controllable costs total labour management staff benefits">
+        <div class="name">Total Expenses / Total Labour</div>
+        <div class="formula">Total Expenses = Total Operational Expenses + Total Controllable Costs</div>
+        <div class="formula">Total Labour = Management + Staff + Employee Benefits</div>
+      </div>
+      <div class="card" data-search="food gross profit beverage merchandise sales costs by category">
+        <div class="name">Gross Profit by category</div>
+        <div class="formula">Food GP = Food Sales − Food Costs</div>
+        <div class="formula">Beverage GP = Beverage Sales − Beverage Costs</div>
+        <div class="formula">Merchandise GP = Merch Sales − Merch Costs</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ COST % ============ -->
+  <section id="costpct">
+    <div class="sec-head"><h2>Cost-Percentage Formulas</h2><span class="tag">type % to find these fast</span></div>
+    <div class="grid">
+      <div class="card" data-search="actual food cost percentage cogs food revenue as purchased">
+        <div class="name">Food Cost %</div>
+        <div class="formula">Food Cost % = COGS ÷ Food Revenue × 100</div>
+        <div class="formula">Food Cost % = (Total Cost ÷ Total Sales) × 100</div>
+        <div class="formula">Food Cost % = Sale Price % − Gross Profit %</div>
+        <div class="note">COGS = food cost. Today: cost today ÷ sales today. To-date: cost to-date ÷ sales to-date.</div>
+      </div>
+      <div class="card" data-search="cost of sales percentage revenue">
+        <div class="name">Cost of Sales %</div>
+        <div class="formula">Cost of Sales % = Cost of Sales ÷ Revenue</div>
+      </div>
+      <div class="card" data-search="beverage cost percentage cost of beverage sale price">
+        <div class="name">Beverage Cost %</div>
+        <div class="formula">Beverage Cost % = Cost of Beverage ÷ Beverage Sales</div>
+      </div>
+      <div class="card" data-search="labour cost percentage cost of labour total revenue employed efficiency">
+        <div class="name">Labour Cost %</div>
+        <div class="formula">Labour Cost % = Cost of Labour ÷ Total Revenue</div>
+        <div class="note">Measures labour <b>efficiency</b>.</div>
+      </div>
+      <div class="card" data-search="minimum operating cost percentage food cost other variable costs">
+        <div class="name">Minimum Operating Cost %</div>
+        <div class="formula">Min Operating Cost % = Food Cost % + Other Variable Costs %</div>
+      </div>
+      <div class="card" data-search="variable cost percentage contribution margin 1 minus">
+        <div class="name">Variable Cost % (from CM)</div>
+        <div class="formula">Variable Cost % = 1 − Contribution Margin %</div>
+      </div>
+      <div class="card" data-search="ratio of x line item percentage total sales vertical exception">
+        <div class="name">Any line item as % (Vertical)</div>
+        <div class="formula">% of X = Value of X ÷ Total Sales</div>
+        <div class="note"><b>Exception:</b> Food/Beverage/Merchandise Cost % use their own category sales as the denominator, not total sales.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CONTRIBUTION MARGIN ============ -->
+  <section id="cm">
+    <div class="sec-head"><h2>Contribution Margin</h2><span class="tag">the engine of BEP</span></div>
+    <div class="grid">
+      <div class="card" data-search="contribution margin sales variable costs revenue">
+        <div class="name">Contribution Margin ($)</div>
+        <div class="formula">CM = Sales − Variable Costs</div>
+        <div class="formula">CM = Total Sales − Total Variable Costs</div>
+        <div class="note">What's left to cover fixed costs + profit after variable costs.</div>
+      </div>
+      <div class="card" data-search="contribution margin per cover sales per cover variable costs per cover">
+        <div class="name">CM per Cover</div>
+        <div class="formula">CM/cover = Sales per Cover − Variable Costs per Cover</div>
+        <div class="note">Drives BEP in covers. Sales per cover = Sales ÷ no. covers; VC per cover = VC ÷ no. covers.</div>
+      </div>
+      <div class="card" data-search="contribution margin percentage cm total sales ratio mvcr">
+        <div class="name">CM % (margin ratio / MVCR)</div>
+        <div class="formula">CM % = CM ÷ Total Sales</div>
+        <div class="formula">CM Ratio = (Revenue − Variable Costs) ÷ Revenue</div>
+        <div class="note">Also called Marginal Variable Contribution Rate. CM % = 100% − Variable Cost %.</div>
+      </div>
+      <div class="card" data-search="contribution margin share total sales total variable costs bep sales">
+        <div class="name">CM Share (for BEP $)</div>
+        <div class="formula">CM Share = (Total Sales − Total Variable Costs) ÷ Total Sales</div>
+        <div class="note">Denominator for BEP in <b>sales $</b>.</div>
+      </div>
+      <div class="card" data-search="contribution margin fixed costs before tax profit total revenue">
+        <div class="name">CM % from fixed costs + profit</div>
+        <div class="formula">CM % = (Fixed Costs + Before-Tax Profit) ÷ Total Revenue</div>
+        <div class="note">Rearrangement: you can swap (Sales − Variable Costs) with (Fixed Costs + Profit).</div>
+      </div>
+      <div class="card" data-search="contribution margin dollars average guest check cm percentage">
+        <div class="name">CM $ from average check</div>
+        <div class="formula">CM $ = Average Guest Check × CM %</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ BREAK-EVEN ============ -->
+  <section id="bep">
+    <div class="sec-head"><h2>Break-Even Point (BEP)</h2><span class="tag">revenue = total cost</span></div>
+    <div class="grid">
+      <div class="card" data-search="break even point definition revenue equals costs zero profit">
+        <div class="name">BEP — definition</div>
+        <div class="formula">BEP: Revenue = Total Costs (Fixed + Variable) → zero profit</div>
+        <div class="note">Minimum sales needed to cover all costs. <span class="warn">Always ROUND UP covers</span> (budget &amp; BEP).</div>
+      </div>
+      <div class="card" data-search="bep covers fixed costs contribution margin per cover break even">
+        <div class="name">BEP in Covers</div>
+        <div class="formula">BEP (covers) = Fixed Costs ÷ CM per Cover</div>
+        <div class="note">CM per cover = Sales/cover − Variable Cost/cover.</div>
+      </div>
+      <div class="card" data-search="bep sales revenue fixed costs contribution margin share">
+        <div class="name">BEP in Sales ($)</div>
+        <div class="formula">BEP (sales) = Fixed Costs ÷ CM Share</div>
+      </div>
+      <div class="card" data-search="bep sales desired profit fixed costs">
+        <div class="name">BEP with Desired Profit</div>
+        <div class="formula">BEP (sales) = (Fixed Costs + Desired Profit) ÷ CM Share</div>
+      </div>
+      <div class="card" data-search="bep after tax profit before tax fixed costs cm share">
+        <div class="name">BEP with After-Tax Profit</div>
+        <div class="formula">BEP (sales) = (Fixed Costs + Before-Tax Profit) ÷ CM Share</div>
+        <div class="formula">BEP covers (after-tax) = BEP sales (after-tax) ÷ Sales per Cover</div>
+        <div class="note">First convert after-tax → before-tax: Before-Tax = After-Tax ÷ (1 − tax rate).</div>
+      </div>
+      <div class="card" data-search="bep days bep dollars average daily sales monthly">
+        <div class="name">BEP in Days</div>
+        <div class="formula">BEP (days) = BEP $ ÷ Average Daily Sales</div>
+        <div class="note">Average Daily Sales = Monthly Total Sales ÷ Days Open.</div>
+      </div>
+      <div class="card" data-search="bep guests covers bep dollars average check">
+        <div class="name">BEP in Guests</div>
+        <div class="formula">BEP (guests) = BEP $ ÷ Average Check</div>
+      </div>
+      <div class="card" data-search="bep production break even selling price unit">
+        <div class="name">BEP of production</div>
+        <div class="formula">BEP (production) = BEP $ ÷ Selling Price</div>
+        <div class="note">CM per unit = (Selling Price − Variable Cost) ÷ unit.</div>
+      </div>
+      <div class="ex full" data-search="bep covers worked example sales 60000 fixed 15000 variable 35000 200 covers 120">
+        <div class="name">Worked example — BEP in covers</div>
+        <div class="steps">Sales 60,000 · Fixed 15,000 · Variable 35,000 · Covers 200
+Sales/cover  = 60,000 ÷ 200 = 300
+VC/cover     = 35,000 ÷ 200 = 175
+CM/cover     = 300 − 175    = 125
+BEP covers   = 15,000 ÷ 125 = 120 covers to break even</div>
+      </div>
+      <div class="ex full" data-search="number of covers objective mvcr break even desired profit average check procedure">
+        <div class="name">Procedure — covers to hit a profit target</div>
+        <div class="steps">Step 1  CM % (MVCR) = 100% − Variable Cost %
+Step 2  BEP for desired profit = (Fixed Cost + Profit) ÷ CM %
+Step 3  Covers = BEP $ ÷ Average Check   (always round up)</div>
+      </div>
+      <div class="ex full" data-search="sales and covers at break even point cm percentage average check procedure three step">
+        <div class="name">Procedure — sales &amp; covers at BEP from average check</div>
+        <div class="steps">Step 1  CM % = ((Average Check − Variable Costs) ÷ Average Check) × 100
+Step 2  BEP $ = Fixed Costs ÷ CM%(as decimal)
+Step 3  Covers = BEP $ ÷ Average Check</div>
+      </div>
+      <div class="card" data-search="minimum sales point minimum labour cost operating cost stay open extra time">
+        <div class="name">Minimum Sales Point</div>
+        <div class="formula">MSP = Minimum Labour Cost ÷ (1 − Minimum Operating Cost %)</div>
+        <div class="note">Revenue needed to justify staying open longer. Min Operating Cost % = Food Cost % + other variable costs. Min Labour Cost = rate/hour × hours.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ REVENUE KPIs ============ -->
+  <section id="revkpi">
+    <div class="sec-head"><h2>Revenue &amp; Seating KPIs</h2><span class="tag">RevPASH · turnover · occupancy</span></div>
+    <div class="grid">
+      <div class="card" data-search="revpash revenue per available seat hour total sales seats hours open">
+        <div class="name">RevPASH</div>
+        <div class="formula">RevPASH = Total Revenue ÷ (No. Seats × Hours Open)</div>
+        <div class="formula">RevPASH = Occupancy % × Average Check</div>
+        <div class="note">Revenue per Available Seat Hour — how hard each seat works per hour.</div>
+      </div>
+      <div class="card" data-search="revpas revenue per available seat number of seats">
+        <div class="name">RevPAS</div>
+        <div class="formula">RevPAS = Revenue ÷ Number of Seats Available</div>
+      </div>
+      <div class="card" data-search="revpsm revpsqm revenue per square meter total sales m2">
+        <div class="name">RevPSM (per m²)</div>
+        <div class="formula">RevPSM = Total Sales ÷ Total m²</div>
+      </div>
+      <div class="card" data-search="revenue per cover total sales total covers food beverage">
+        <div class="name">Revenue per Cover</div>
+        <div class="formula">Revenue/Cover = Total Sales ÷ Total Covers</div>
+        <div class="formula">Food/Cover = Food Sales ÷ Covers · Bev/Cover = Bev Sales ÷ Covers</div>
+      </div>
+      <div class="card" data-search="average check actual revenue covers per dish quantity sold">
+        <div class="name">Average Check</div>
+        <div class="formula">Average Check = Revenue ÷ Number of Covers</div>
+        <div class="formula">Average Check (per dish) = Revenue ÷ Quantity Sold</div>
+      </div>
+      <div class="card" data-search="average daily sales monthly total days open">
+        <div class="name">Average Daily Sales</div>
+        <div class="formula">Avg Daily Sales = Monthly Total Sales ÷ Days Open</div>
+      </div>
+      <div class="card" data-search="seat turnover covers number of seats utilisation">
+        <div class="name">Seat Turnover</div>
+        <div class="formula">Seat Turnover = No. Covers ÷ Number of Seats</div>
+        <div class="note">= Seat utilisation. Seat = empty; cover = occupied. (40 ÷ 80 = 0.5)</div>
+      </div>
+      <div class="card" data-search="average daily seat turnover breakfast lunch dinner covers seats times 3">
+        <div class="name">Average Daily Seat Turnover</div>
+        <div class="formula">= (Breakfast + Lunch + Dinner Covers) ÷ (No. Seats × 3)</div>
+        <div class="note">Use when given individual meal-period turnovers.</div>
+      </div>
+      <div class="card" data-search="ideal seat turnover minutes open average service cycle time">
+        <div class="name">Ideal Seat Turnover</div>
+        <div class="formula">Ideal Seat Turnover = Minutes Open ÷ Average Service Cycle Time</div>
+        <div class="formula">Ideal Seat Turnover Rate = Real Seat Turnover ÷ Occupancy Rate</div>
+      </div>
+      <div class="card" data-search="service cycle time table usage number of tables">
+        <div class="name">Service Cycle Time</div>
+        <div class="formula">SCT = Σ(table usage time, similar tables) ÷ Number of similar tables</div>
+      </div>
+      <div class="card" data-search="maximum capacity seats minutes open service cycle time">
+        <div class="name">Maximum Capacity</div>
+        <div class="formula">Max Capacity = (No. Seats × Minutes Open) ÷ Avg Service Cycle Time</div>
+      </div>
+      <div class="card" data-search="occupancy ratio percentage actual turnover ideal covers max capacity revpash">
+        <div class="name">Occupancy Ratio / %</div>
+        <div class="formula">Occupancy Ratio = Actual Turnover ÷ Ideal Seat Turnover</div>
+        <div class="formula">Occupancy % = (No. Covers ÷ Max Capacity) × 100</div>
+        <div class="formula">Occupancy % = (RevPASH ÷ Average Check) × 100</div>
+      </div>
+      <div class="ex full" data-search="revpash worked example lunch dinner 100 seats 5000 15000">
+        <div class="name">Worked example — RevPASH</div>
+        <div class="steps">100 seats, 7 days. Lunch 12–15 (3h), Dinner 17–22 (5h)
+Lunch  = 5,000  ÷ (100 × 3) = 16.67
+Dinner = 15,000 ÷ (100 × 5) = 30.00</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ GUEST KPIs ============ -->
+  <section id="guestkpi">
+    <div class="sec-head"><h2>Guest / Attractiveness KPIs</h2><span class="tag">capture · return · walk-in</span></div>
+    <div class="grid">
+      <div class="card" data-search="capture rate in-house guests meal period total hotel guests">
+        <div class="name">Capture Rate</div>
+        <div class="formula">Capture Rate = In-House Guests per Meal Period ÷ Total Hotel Guests</div>
+      </div>
+      <div class="card" data-search="return guest percentage total return guests total served">
+        <div class="name">Return Guest %</div>
+        <div class="formula">Return Guest % = Total Return Guests ÷ Total Guests Served</div>
+      </div>
+      <div class="card" data-search="walk-in percentage total walk-ins total guests served">
+        <div class="name">Walk-in %</div>
+        <div class="formula">Walk-in % = Total Walk-ins ÷ Total Guests Served</div>
+      </div>
+      <div class="card" data-search="internal external hotel kpi house room change cash credit card">
+        <div class="name">Internal / External hotel KPIs</div>
+        <div class="note"><b>External KPI</b> = house / room change. <b>Internal</b> = cash / credit card split.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MENU ENGINEERING ============ -->
+  <section id="menu">
+    <div class="sec-head"><h2>Menu Engineering &amp; Popularity</h2><span class="tag">stars · plowhorses · puzzles · dogs</span></div>
+    <div class="grid">
+      <div class="card" data-search="item gross profit menu price food cost per item">
+        <div class="name">Item Gross Profit</div>
+        <div class="formula">Item GP = Menu Price − Food Cost</div>
+        <div class="formula">Total Item GP = GP × Number Sold</div>
+      </div>
+      <div class="card" data-search="average gross profit margin profitability sum total gross profit number sold">
+        <div class="name">Average Gross Profit / Profitability</div>
+        <div class="formula">Avg GP = Σ Total GP ÷ Total Number Sold</div>
+        <div class="formula">Avg Menu Profitability = Σ Total GP ÷ Total Dishes Sold</div>
+        <div class="note">The profitability cut-line: above = Star/Puzzle, below = Plowhorse/Dog.</div>
+      </div>
+      <div class="card" data-search="popularity percentage number sold total number sold menu">
+        <div class="name">Popularity %</div>
+        <div class="formula">Popularity % = Number Sold ÷ Total Number Sold</div>
+      </div>
+      <div class="card" data-search="average popularity 70 percent number of menu items cut line">
+        <div class="name">Average Popularity (cut-line)</div>
+        <div class="formula">Avg Popularity = (100% ÷ Number of Menu Items) × 70%</div>
+        <div class="note">e.g. 4 items → (100/4) × 70% = <b>17.5%</b>. Above = popular (Star/Plowhorse), below = unpopular (Dog/Puzzle).</div>
+      </div>
+      <div class="rule full" data-search="menu engineering quadrants star plowhorse plough horse puzzle dog what to do">
+        <div class="name">Menu Engineering quadrants — what to do</div>
+        <div class="body">
+          <table class="t">
+            <tr><th></th><th>High Popularity</th><th>Low Popularity</th></tr>
+            <tr><th>High Profit</th><td><b>STAR</b> — don't touch it, do nothing.</td><td><b>PUZZLE</b> — rearrange menu, promote, or lower price.</td></tr>
+            <tr><th>Low Profit</th><td><b>PLOWHORSE</b> — rework recipe, portion control, raise price.</td><td><b>DOG</b> — rebrand, redesign, or remove.</td></tr>
+          </table>
+          <div style="font-size:12px;margin-top:6px">Compare each item to <b>Average Popularity</b> (popularity axis) and <b>Average Gross Profit</b> (profit axis). Limitations: time-consuming, ignores competition (internal view only).</div>
+        </div>
+      </div>
+      <div class="card" data-search="potential food cost number sold cost per dish item menu">
+        <div class="name">Potential Food Cost</div>
+        <div class="formula">Item's Potential FC = Number Sold × Cost per Dish</div>
+        <div class="formula">Menu's Potential FC = Σ each item's potential FC</div>
+      </div>
+      <div class="card" data-search="potential food cost percentage item menu revenue per item food revenue">
+        <div class="name">Potential Food Cost %</div>
+        <div class="formula">Item PFC % = (Item Potential FC ÷ Revenue per Item) × 100</div>
+        <div class="formula">Menu PFC % = (Menu Potential FC ÷ Food Revenue) × 100</div>
+        <div class="note">Compare to actual FC% — gap = waste, theft, over-portioning, etc.</div>
+      </div>
+      <div class="card" data-search="total food costs units sold total menu revenue item revenue">
+        <div class="name">Total food cost / menu revenue</div>
+        <div class="formula">Total Food Costs = Units Sold × Food Cost</div>
+        <div class="formula">Total Menu Revenue = Σ Total Item Revenue</div>
+      </div>
+      <div class="card" data-search="average menu price sum of prices number of dishes">
+        <div class="name">Average Menu Price</div>
+        <div class="formula">Avg Menu Price = Σ Prices ÷ Number of Dishes</div>
+        <div class="note">Different from Average Check (= revenue ÷ number sold). Used in OMNES &amp; category ratio.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PRICING ============ -->
+  <section id="pricing">
+    <div class="sec-head"><h2>Pricing Methods &amp; Strategies</h2><span class="tag">factor · gross margin · psychology</span></div>
+    <div class="grid">
+      <div class="card" data-search="pricing factor 100 desired food cost percentage 5 4 3">
+        <div class="name">Pricing Factor (Factor Method)</div>
+        <div class="formula">Pricing Factor = 100% ÷ Desired Food Cost %</div>
+        <div class="note">20%→5 · 25%→4 · 33.33%→3. Most common method; ignores value.</div>
+      </div>
+      <div class="card" data-search="selling price food cost dish pricing factor markup">
+        <div class="name">Selling Price (factor)</div>
+        <div class="formula">Selling Price = Food Cost of Dish × Pricing Factor</div>
+        <div class="formula">Sale Price = Food Cost $ ÷ Food Cost %</div>
+      </div>
+      <div class="card" data-search="ideal selling price cost based pricing cost actual budget food cost percentage">
+        <div class="name">Ideal Selling Price (cost-based)</div>
+        <div class="formula">Ideal Selling Price = Cost ÷ Desired Food Cost %</div>
+        <div class="note">e.g. 6.01 ÷ 0.34 ≈ 17.67. Then value-based pricing can charge more (e.g. 25).</div>
+      </div>
+      <div class="card" data-search="cost percent method cost of product desired product cost percentage">
+        <div class="name">Cost % Method</div>
+        <div class="formula">Selling Price = Cost of Product ÷ Desired Product Cost %</div>
+      </div>
+      <div class="card" data-search="food sales selling price of item cost food cost percentage of that item">
+        <div class="name">Selling price of a specific item</div>
+        <div class="formula">Item Selling Price = Cost of Item ÷ Food Cost % of that item</div>
+      </div>
+      <div class="ex full" data-search="menu item selling price markup factor vat excl procedure two step">
+        <div class="name">Procedure — menu item selling price (markup)</div>
+        <div class="steps">Step 1  Mark-up factor = 100 ÷ Desired Food Cost %
+Step 2  Selling Price (VAT excl) = Cost × Mark-up factor</div>
+      </div>
+      <div class="card" data-search="gross margin non food costs desired net profit method">
+        <div class="name">Gross Margin (Avg GM Method)</div>
+        <div class="formula">Gross Margin = Non-Food Costs + Desired Net Profit</div>
+        <div class="note">Considers operating + fixed costs. Used by large manufacturers (McDonald's). The only method taking fixed costs into direct account.</div>
+      </div>
+      <div class="ex full" data-search="average gross margin method procedure unit gross profit selling price">
+        <div class="name">Procedure — Average Gross Margin Method</div>
+        <div class="steps">Step 1  Gross Profit = Non-Food Costs + Desired Net Profit
+Step 2  Unit Gross Profit = Gross Profit ÷ Expected Customers
+Step 3  Selling Price = Unit Gross Margin + Cost of Dish</div>
+      </div>
+      <div class="ex full" data-search="gross margin per unit dish customer procedure percentage">
+        <div class="name">Procedure — Gross Margin per unit / dish</div>
+        <div class="steps">Step 1  Gross Margin % = 100% − Food Cost %
+Step 2  Gross Margin $ = Revenue × GM%
+Step 3  Unit GM = GM $ ÷ Number of dishes sold
+GM per customer = Gross Margin ÷ Expected Customers</div>
+      </div>
+      <div class="card" data-search="gross profit margin menu price raw cost percentage">
+        <div class="name">Gross Profit Margin %</div>
+        <div class="formula">GP Margin = (Menu Price − Raw Cost) ÷ Menu Price</div>
+      </div>
+      <div class="card" data-search="cost based value based pricing customer perceived value experience">
+        <div class="name">Cost-based vs Value-based</div>
+        <div class="note"><b>Cost-based</b> — price from cost + margin; customer ignored. <b>Value-based</b> — price from what the customer will pay (location, chef, experience). Higher margin on cheap items, lower on costly ones.</div>
+      </div>
+      <div class="card" data-search="pricing strategies skimming alignment penetration survival premium bundle loss leader">
+        <div class="name">Positioning strategies</div>
+        <div class="note"><b>Skimming</b> — max profit/ROI. <b>Alignment</b> — match competition, hold share. <b>Penetration</b> — grow share, market disruption (new product). <b>Survival</b> — cover at least variable costs. Plus Premium, Bundle, Loss-Leader, Multiple, Couponing.</div>
+      </div>
+      <div class="card" data-search="psychological pricing charm decoy cent-less low syllable innumeracy remove dollar sign 9.95">
+        <div class="name">Psychological pricing</div>
+        <div class="note"><b>Charm</b> 9.95 vs 10 · <b>Decoy</b> makes others look good · <b>Cent-less</b> £10 &gt; £10.00 · <b>Remove $</b> sign · <b>Innumeracy</b> "buy 1 get 1 free" · <b>Low-syllable</b> 29 feels lighter than 27.70 · <b>Differential</b> (sales).</div>
+      </div>
+      <div class="card" data-search="price blending dynamic pricing margins brought closer revenue dom perignon house wine">
+        <div class="name">Price blending &amp; dynamic pricing</div>
+        <div class="note"><b>Price blending</b> — high- &amp; low-cost items offset; margins brought closer; goal = revenue. <b>Dynamic</b> — raise prices on internal/external factors &amp; availability.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ OMNES ============ -->
+  <section id="omnes">
+    <div class="sec-head"><h2>OMNES Principle</h2><span class="tag">4 principles of a balanced menu</span></div>
+    <div class="grid">
+      <div class="card" data-search="omnes principle 1 price range variance ratio highest lowest priced item 2.5 3">
+        <div class="name">Principle 1 — Price Range</div>
+        <div class="formula">Variance Ratio = Highest Priced Item ÷ Lowest Priced Item</div>
+        <div class="note">Ideal <b>2.5–3</b>. Good: 25/10 = 2.5. Bad: 60/10 = 6 or 15/10 = 1.5.</div>
+      </div>
+      <div class="card" data-search="omnes principle 2 price spread three ranges 25 50 25">
+        <div class="name">Principle 2 — Price Spread</div>
+        <div class="formula">Spread = (Highest − Lowest) ÷ 3</div>
+        <div class="note">Split menu into 3 bands; ideal distribution <b>25% – 50% – 25%</b> (low–mid–high).</div>
+      </div>
+      <div class="card" data-search="omnes principle 3 customer reaction pricing category ratio average check average menu price 0.9 0.99">
+        <div class="name">Principle 3 — Customer Reaction</div>
+        <div class="formula">Category Ratio = Average Check ÷ Average Menu Price</div>
+        <div class="note">Ideal <b>0.9–0.99</b>. &lt;0.9 = too expensive · &gt;1.00 = too cheap.</div>
+      </div>
+      <div class="card" data-search="omnes principle 4 promotion middle range median items">
+        <div class="name">Principle 4 — Promotion</div>
+        <div class="note">Promote items in the <b>middle (median) range</b> of the price spread.</div>
+      </div>
+      <div class="ex full" data-search="omnes worked example quinoa salad thai beef green salad 20 16.57 principle met">
+        <div class="name">Worked example — OMNES (avg check $20, promotes Quinoa Salad $16)</div>
+        <div class="steps">P1  25 ÷ 10 = 2.5            → in range ✔ MET
+P2  (25 − 10) ÷ 3 = 5 bands; 3 low / 2 mid / 2 high
+    → not 25-50-25         ✘ NOT met
+P3  20 ÷ 16.57 = 1.2        → not 0.9-0.99 ✘ NOT met
+P4  Quinoa $16 = median item, being promoted ✔ MET</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ YIELD / BUTCHER ============ -->
+  <section id="yield">
+    <div class="sec-head"><h2>Yield &amp; Butcher Tests · Recipe Costing</h2><span class="tag">AP · EP · waste · conversion</span></div>
+    <div class="grid">
+      <div class="card" data-search="yield test butcher test as purchased edible portion alive vegetables meat fish bones scraps">
+        <div class="name">Yield vs Butcher test</div>
+        <div class="note"><b>Yield test</b> — non-"alive" products (vegetables). <b>Butcher test</b> — "alive" products (meat, fish), looks at bones &amp; scraps, spoken in portions. Same formulas.</div>
+      </div>
+      <div class="card" data-search="edible portion weight as purchased waste bones scraps net gross">
+        <div class="name">AP / EP / Waste relationships</div>
+        <div class="formula">EP Weight = AP Weight − Waste</div>
+        <div class="formula">AP Weight = EP + Waste</div>
+        <div class="formula">Waste = AP Weight − EP Weight</div>
+        <div class="note">EP = AP − bones − scraps. AP = gross weight purchased; EP = usable net weight.</div>
+      </div>
+      <div class="card" data-search="yield percentage edible portion as purchased ep ap times 100">
+        <div class="name">Yield Percentage</div>
+        <div class="formula">Yield % = (EP ÷ AP) × 100</div>
+      </div>
+      <div class="card" data-search="ap weight how much to buy edible portion weight yield purchasing need">
+        <div class="name">How much to buy (AP Weight)</div>
+        <div class="formula">AP Weight = EP Weight ÷ Yield %</div>
+      </div>
+      <div class="card" data-search="edible portion price actual cost as purchased price yield value per kg">
+        <div class="name">Edible Portion Price (real cost)</div>
+        <div class="formula">EP Price = AP Price ÷ Yield %</div>
+        <div class="formula">Value per kg (EP) = AP Price ÷ Yield %</div>
+      </div>
+      <div class="card" data-search="conversion factor desired yield current yield factor method recipe">
+        <div class="name">Conversion Factor (Factor Method)</div>
+        <div class="formula">Conversion Factor = Desired Yield ÷ Current Yield</div>
+      </div>
+      <div class="card" data-search="percentage method percent of total food weight ingredient total recipe weight new recipe amount">
+        <div class="name">Percentage Method</div>
+        <div class="formula">% of Total = Ingredient Weight ÷ Total Recipe Weight</div>
+        <div class="formula">New Recipe Amount = % of Total × Total Amount Required</div>
+      </div>
+      <div class="card" data-search="recipe cost per ingredient ep cost per unit quantity cost per portion">
+        <div class="name">Recipe / Portion cost</div>
+        <div class="formula">Recipe Cost per Ingredient = EP $ per Unit × Quantity</div>
+        <div class="formula">Cost per Portion = Recipe Cost ÷ Number of Portions</div>
+        <div class="formula">AP $/Unit × Yield % = Recipe Cost (per dish)</div>
+      </div>
+      <div class="card" data-search="portion pieces weight portion size portion cost per piece total value number of pieces">
+        <div class="name">Portion pieces &amp; cost</div>
+        <div class="formula">Portion Pieces = Weight ÷ Portion Size</div>
+        <div class="formula">Portion Cost per Piece = Total Value ÷ Number of Pieces</div>
+        <div class="formula">Total Value = Weight (kg) × Value per kg</div>
+      </div>
+      <div class="card" data-search="z-cost zcost free bread oil butter salt pepper complimentary">
+        <div class="name">Z-Cost</div>
+        <div class="note">Free items given to guests (bread, oil, butter, salt, pepper). Added into food cost at Step 3.</div>
+      </div>
+      <div class="card" data-search="standardized recipe contents yield portion size ingredient list pros cons">
+        <div class="name">Standardized recipe (6 steps, Step 1)</div>
+        <div class="note">Contains: item name, total yield, portion size, ingredient list, method, time &amp; temp, special instructions. <b>Pros:</b> consistency, accurate purchasing/costing/pricing, easier training. Always standardize.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PURCHASING ============ -->
+  <section id="purch">
+    <div class="sec-head"><h2>Purchasing &amp; Receiving</h2><span class="tag">documents · methods · ABC</span></div>
+    <div class="grid">
+      <div class="card" data-search="purchasing procurement finance department supplier relationships">
+        <div class="name">Purchasing vs Procurement</div>
+        <div class="note"><b>Purchasing</b> — the act of buying goods/services; run by <b>Finance</b> (control + document handling). <b>Procurement</b> — finding, agreeing terms, tendering; managed by everyone (heads of dept) building supplier relationships.</div>
+      </div>
+      <div class="card" data-search="3 purchasing questions make or buy how many vendors centralized decentralized">
+        <div class="name">3 Purchasing questions</div>
+        <div class="note">1) <b>Make or buy?</b> compare cost/labour/storage. 2) <b>How many vendors?</b> ~3–4 (avoid overcharging &amp; supply risk). 3) <b>Centralized vs Decentralized?</b> — best is both. Centralized = control/pricing but bureaucracy; decentralized = fast/specific but disorganized.</div>
+      </div>
+      <div class="card" data-search="document flow spec sheet purchase request requisition bid sheet purchase order po">
+        <div class="name">Purchasing document flow (order)</div>
+        <div class="note">1 <b>Spec Sheet</b> (intended use most important; no price) → 2 <b>Purchase Request / Requisition</b> (internal, new items) → 3 <b>Bid Sheet</b> (compare suppliers; negotiate) → 4 <b>Purchase Order (PO)</b> — first official legal doc, buyer→seller.</div>
+      </div>
+      <div class="card" data-search="receiving documents delivery note invoice bill of sale credit note">
+        <div class="name">Receiving documents</div>
+        <div class="note"><b>Delivery Note</b> arrives with goods → <b>Invoice</b> (bill of sale, seller→buyer, confirms deal) → <b>Credit Note</b> (seller→buyer, credits account after a mistake: overstated invoice, wrong discount, spoilt/broken goods, requirements not met).</div>
+      </div>
+      <div class="card" data-search="receiving process fifo check quality quantity do not sign">
+        <div class="name">Receiving process</div>
+        <div class="note">PO → delivery + delivery note → check items/quality/quantity match → store with <b>FIFO</b>. Ideally received by the orderer/purchaser. <span class="warn">If anything is wrong, DO NOT sign.</span></div>
+      </div>
+      <div class="rule full" data-search="purchasing approach methods automatic replenishment periodic reorder opportunist fixed variable date quantity">
+        <div class="name">Purchasing approach combinations</div>
+        <div class="body">
+          <table class="t">
+            <tr><th></th><th>Fixed Date</th><th>Variable Date</th></tr>
+            <tr><th>Fixed Quantity</th><td><b>Automatic Purchasing</b> (same amount, same time)</td><td><b>Periodic Reorder Level</b> (order when stock hits reorder point)</td></tr>
+            <tr><th>Variable Quantity</th><td><b>Method of Replenishment</b> (fixed date, varying amount; check stock)</td><td><b>Opportunist Purchasing</b> (mostly food)</td></tr>
+          </table>
+        </div>
+      </div>
+      <div class="card" data-search="abc classification 70 25 5 percent annual consumption value high value alcohol caviar control">
+        <div class="name">ABC Classification</div>
+        <div class="note"><b>A:</b> 20% of items = 70% of consumption value (high value — alcohol, caviar; tight control). <b>B:</b> 30% of items = 25% value (moderate control). <b>C:</b> 50% of items = 5% value (salt, straws; minimal control). Consumption Value = Usage × Cost.</div>
+      </div>
+      <div class="card" data-search="supply chain management dimensions physical informational financial spec sheet">
+        <div class="name">Supply Chain dimensions</div>
+        <div class="note"><b>Physical</b> — how product moves. <b>Informational</b> — what/where/how/how much/when. <b>Financial</b> — how money + bills move.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ INVENTORY ============ -->
+  <section id="inv">
+    <div class="sec-head"><h2>Inventory &amp; Valuation</h2><span class="tag">FIFO · LIFO · WAP · turnover</span></div>
+    <div class="grid">
+      <div class="card" data-search="annual consumption value amount used cost per unit abc method">
+        <div class="name">Annual Consumption Value</div>
+        <div class="formula">ACV = Amount Used × Cost per Unit</div>
+        <div class="formula">ACV % = Individual ACV ÷ Total ACV</div>
+        <div class="note">Compute ACV% then compare to ABC bands to classify A/B/C.</div>
+      </div>
+      <div class="card" data-search="average monthly inventory initial final beginning ending">
+        <div class="name">Average Monthly Inventory</div>
+        <div class="formula">Avg Monthly Inventory = (Initial + Final Inventory) ÷ 2</div>
+      </div>
+      <div class="card" data-search="rate of inventory turnover cost of sales average monthly inventory">
+        <div class="name">Rate of Inventory Turnover</div>
+        <div class="formula">Inventory Turnover = Cost of Sales ÷ Average Monthly Inventory</div>
+      </div>
+      <div class="card" data-search="average age of inventory days in month rate of inventory turnover">
+        <div class="name">Average Age of Inventory</div>
+        <div class="formula">Avg Age = Days in Month ÷ Rate of Inventory Turnover</div>
+      </div>
+      <div class="card" data-search="inventory to cost of sales sales to inventory average monthly inventory revenue">
+        <div class="name">Inventory ratios</div>
+        <div class="formula">Inventory to Cost of Sales = Avg Monthly Inventory ÷ Cost of Sales</div>
+        <div class="formula">Sales to Inventory = Revenue ÷ Avg Monthly Inventory</div>
+      </div>
+      <div class="card" data-search="closing storeroom book value opening purchases issues bin card">
+        <div class="name">Storeroom book value</div>
+        <div class="formula">Closing Book Value = Opening Stock + Purchases − Issues</div>
+        <div class="formula">Storeroom Inv of Day = Prev Day + Purchases − Issues</div>
+        <div class="note">Bin card per item; check ≥ once a month on the last day.</div>
+      </div>
+      <div class="rule full" data-search="valuation methods fifo lifo wap weighted average price last purchased price perpetual physical">
+        <div class="name">Inventory valuation methods</div>
+        <div class="body">
+          <b>FIFO</b> — issues expensed at oldest price; stock valued at newest. <b>LIFO</b> — issues at newest price; stock valued at oldest. <b>WAP (Weighted Average Price)</b> — value of units available ÷ number available; best compromise with frequent price swings, takes history into account, most accurate but harder. <b>Last Purchased Price</b> — value at most recent price (closest date <i>before</i> issue date); easy but less accurate.<br>
+          <span style="font-size:12px">Counting: <b>Perpetual</b> = continuous (subtract after each use). <b>Physical</b> = counted (usually last day of month) — most accurate.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FOOD COST ============ -->
+  <section id="foodcost">
+    <div class="sec-head"><h2>Actual Food Cost</h2><span class="tag">consumed vs sold · daily food cost</span></div>
+    <div class="grid">
+      <div class="card" data-search="cogs total available closing inventory opening purchases">
+        <div class="name">COGS / Total Available</div>
+        <div class="formula">COGS = Total Available − Closing Inventory</div>
+        <div class="formula">Total Available = Opening Inventory + Purchases</div>
+      </div>
+      <div class="card" data-search="food cost opening inventory purchases ending inventory direct issued">
+        <div class="name">Food Cost</div>
+        <div class="formula">Food Cost = Opening Inventory + Purchases − Ending Inventory</div>
+        <div class="formula">Food Cost $ = Direct Purchases + Issued</div>
+      </div>
+      <div class="card" data-search="cost of food consumed transfer out transfer in guests employees">
+        <div class="name">Cost of Food Consumed</div>
+        <div class="formula">Cost of Food Consumed = Food Cost − Transfer Out + Transfer In</div>
+        <div class="note">All food consumed by guests + employees. This figure goes into the P&amp;L.</div>
+      </div>
+      <div class="card" data-search="cost of food sold consumed employee meals free giveaways non revenue">
+        <div class="name">Cost of Food Sold</div>
+        <div class="formula">Cost of Food Sold = Cost of Food Consumed − (Employee Meals + Free Giveaways)</div>
+        <div class="note">Cost of food used to earn revenue (strips non-revenue items: inter-outlet/unit transfers + non-revenue food).</div>
+      </div>
+      <div class="card" data-search="total cost today date direct purchase issues correction beverage food previous day">
+        <div class="name">Daily running cost</div>
+        <div class="formula">Total Cost Today = Direct Purchase + Issues + (corr. bev→food) − (corr. food→bev)</div>
+        <div class="formula">Total Cost to Date = Prev. Day To-Date + Total Cost Today</div>
+      </div>
+      <div class="rule full" data-search="daily food cost direct purchases store issues inter kitchen unit transfers adjustments employee meals">
+        <div class="name">Daily Food Cost build-up</div>
+        <div class="body">
+          + Cost of Direct Purchases (straight to kitchen, e.g. bread)<br>
+          + Cost of Store Issues (from main storage via requisition)<br>
+          ± Inter-Kitchen Transfers · ± Inter-Unit Transfers (food↔beverage)<br>
+          = <b>Food Available for Sale</b><br>
+          − Adjustments (between depts / complimentary) − Cost of Employee Meals<br>
+          = <b>Daily Food Cost</b>
+        </div>
+      </div>
+      <div class="rule full" data-search="6 food cost steps recipes yield butcher cost sales statistics potential actual">
+        <div class="name">The 6 Food Cost steps</div>
+        <div class="body">1 Write recipes &amp; sub-recipes (yield, portions) · 2 Yield &amp; Butcher tests (AP vs EP) · 3 Calculate the cost (incl. Z-cost) · 4 Sales statistics (incl. comps, re-fires, re-cooks — always post) · 5 Potential Food Cost · 6 Potential vs Actual FC. <b>Potential FC is lower; Actual FC is higher</b> (waste, theft, over-portioning, poor receiving, unrecorded sales).</div>
+      </div>
+      <div class="card" data-search="where misposted food cost employee meals labour benefits gratis bar promotional marketing">
+        <div class="name">Where mis-posted food goes</div>
+        <div class="note"><b>Employee meals</b> → Labour (employee benefits). <b>Gratis to bar customers</b> → Bar. <b>Promotional</b> (happy hour, coupons) → Marketing. Nothing extra should sit in Food Cost.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ BEVERAGE ============ -->
+  <section id="bev">
+    <div class="sec-head"><h2>Beverage Cost</h2><span class="tag">cost · sales value · quantity</span></div>
+    <div class="grid">
+      <div class="card" data-search="three beverage methods cost method sales value method quantity method">
+        <div class="name">3 Beverage calculation methods</div>
+        <div class="note"><b>Cost Method</b> — inventory-based actual cost (Cost of Beverage ÷ Beverage Sales). <b>Sales Value Method</b> — potential vs actual bottle revenue. <b>Quantity Method</b> — mL that should have poured vs actual.</div>
+      </div>
+      <div class="card" data-search="beverage cost percentage gross profit cost of beverage sale price">
+        <div class="name">Beverage cost &amp; GP</div>
+        <div class="formula">Beverage Cost % = Cost of Beverage ÷ Beverage Sales</div>
+        <div class="formula">Beverage GP = Beverage Sales − Beverage Costs</div>
+        <div class="formula">Bev Revenue per Cover = Beverage Sales ÷ Total Covers</div>
+      </div>
+      <div class="card" data-search="cost per drink bottle price number of drinks portion standard spillage">
+        <div class="name">Cost / drinks per bottle</div>
+        <div class="formula">Cost per Drink = Bottle Price ÷ Drinks per Bottle</div>
+        <div class="note">Usable volume = bottle − spillage allowance. Recipe must include mixers (tonic, ice, lime), not just the spirit.</div>
+      </div>
+      <div class="ex full" data-search="beverage worked example gin 1 liter 40ml spillage 2 percent 24.5 drinks 294 252 missing">
+        <div class="name">Worked example — Sales Value Method (gin)</div>
+        <div class="steps">1L gin, 40 mL pour, 2% spillage → usable 980 mL
+Drinks = 980 ÷ 40 = 24.5 pours
+Potential = 24.5 × $12 = $294
+Actual POS revenue = $252
+Missing = $294 − $252 = $42 → $42 ÷ $12 = 3.5 drinks unaccounted</div>
+      </div>
+      <div class="card" data-search="reasons high beverage cost overpouring not entering pos theft giving drinks bottle for bottle">
+        <div class="name">High cost causes &amp; controls</div>
+        <div class="note"><b>Causes:</b> over/under-pouring, drinks not entered in POS, giveaways, employees drinking, theft, serving cheap as premium. <b>Controls:</b> standard glassware/measures/recipes, mark bottles, mystery shopper, <b>bottle-for-bottle</b> (1 empty = 1 new).</div>
+      </div>
+      <div class="card" data-search="beverage inventory monthly two people beer bottles kegs weight count">
+        <div class="name">Beverage inventory rules</div>
+        <div class="note">Monthly, two people (finance + bar). Beer bottles counted individually; kegs by weight; everything counted/measured. Visual count: ~25% left ≈ 0.2.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ LABOUR ============ -->
+  <section id="labour">
+    <div class="sec-head"><h2>Labour Cost &amp; Productivity</h2><span class="tag">turnover · FTE · efficiency</span></div>
+    <div class="grid">
+      <div class="card" data-search="labour cost percentage efficiency cost of labour total revenue employed">
+        <div class="name">Labour Cost % (efficiency)</div>
+        <div class="formula">Labour Cost % = Cost of Labour ÷ Total Revenue</div>
+      </div>
+      <div class="card" data-search="labour cost per cover covers per labour cost hour served">
+        <div class="name">Labour per cover / hour</div>
+        <div class="formula">Labour Cost per Cover = Labour Cost ÷ Covers Served</div>
+        <div class="formula">Covers per Labour Cost = Covers Served ÷ Labour Cost</div>
+        <div class="formula">Covers per Labour Hour = Covers Served ÷ Labour Hours</div>
+      </div>
+      <div class="card" data-search="sales per labour hour total sales labour hours">
+        <div class="name">Sales per Labour Hour</div>
+        <div class="formula">Sales per Labour Hour = Total Sales ÷ Labour Hours</div>
+      </div>
+      <div class="card" data-search="productivity rate output input efficiency">
+        <div class="name">Productivity Rate</div>
+        <div class="formula">Productivity Rate = Output ÷ Input</div>
+        <div class="note">Output ↑ / input same → PR ↑. Input ↑ / output same → PR ↓.</div>
+      </div>
+      <div class="card" data-search="employee turnover rate staff who left average number of staff times 100">
+        <div class="name">Employee Turnover Rate</div>
+        <div class="formula">Turnover Rate = (No. Staff Who Left ÷ Average No. Staff) × 100</div>
+        <div class="formula">Average No. Staff = (Number at Start + Number at End) ÷ 2</div>
+        <div class="note"><span class="warn">Note:</span> your doc writes "(start − end) ÷ 2" — the standard correct form is <b>(start + end) ÷ 2</b>. US restaurant avg ≈ 74.9%.</div>
+      </div>
+      <div class="card" data-search="labour cost increase budgeted minimum labour cost per hour hours">
+        <div class="name">Labour budgeting</div>
+        <div class="formula">Labour Cost Increase = Labour Cost × New Budgeted Increase</div>
+        <div class="formula">Minimum Labour Cost = Rate per Hour × Hours</div>
+      </div>
+      <div class="card" data-search="amount of employees to hire fte ratio open days days worked employees per day">
+        <div class="name">Number of employees to hire (FTE)</div>
+        <div class="formula">Employees to Hire = (Open Days ÷ Days Worked Ratio) × Employees Wanted per Day</div>
+        <div class="note">Ratio = Number of days open ÷ days worked by one employee.</div>
+      </div>
+      <div class="card" data-search="payroll labour expense fixed variable minimum staff controllable">
+        <div class="name">Payroll definitions</div>
+        <div class="note"><b>Payroll</b> = gross pay for work. <b>Labour Expense</b> = wages + housing/uniform/transport. <b>Fixed payroll</b> (salaries, little control) vs <b>Variable payroll</b> (hourly, ~100% control). Payroll = controllable; taxes/insurance = uncontrollable.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ VARIANCE / FORECAST ============ -->
+  <section id="variance">
+    <div class="sec-head"><h2>Variance, Flow-Through &amp; Forecasting</h2><span class="tag">budgeting procedures</span></div>
+    <div class="grid">
+      <div class="card" data-search="variance dollars percentage new old horizontal analysis">
+        <div class="name">Variance</div>
+        <div class="formula">Variance $ = New − Old</div>
+        <div class="formula">Variance % = (New − Old) ÷ Old</div>
+      </div>
+      <div class="card" data-search="flow through flow thru variance gop sales operating profit revenue">
+        <div class="name">Flow-Through (Flow-Thru)</div>
+        <div class="formula">Flow-Thru = (Variance GOP ÷ Variance Sales) × 100</div>
+        <div class="formula">= (Current OP − Prev OP) ÷ (Current Rev − Prev Rev)</div>
+        <div class="note">Negative flow-thru (negative GOP variance) = revenue grew but costs poorly managed — more money in, but more cost too.</div>
+      </div>
+      <div class="card" data-search="budgeting forecast definition expectations history scratch">
+        <div class="name">Budget vs Forecast</div>
+        <div class="note"><b>Budget</b> sets expectations (year plan, from history or scratch). <b>Forecast</b> updates them based on reality — the bridge between budget and actuals. <b>P&amp;L</b> reports the actual outcome.</div>
+      </div>
+      <div class="card" data-search="number of covers actual covers budgeted increase round up decrease">
+        <div class="name">Budgeted change in covers</div>
+        <div class="formula">Number of Covers = Actual Covers × Budgeted Increase</div>
+        <div class="note"><span class="warn">Always ROUND UP</span>, regardless of decimal. Same for increase/decrease in covers.</div>
+      </div>
+      <div class="card" data-search="food sales costs budgeting average per cover adjust price multiply new budgeted covers labour increase">
+        <div class="name">Budgeting food/labour</div>
+        <div class="note"><b>Food sales &amp; costs:</b> average per cover → adjust price → × new budgeted covers. <b>Labour:</b> Labour Cost × budgeted increase.</div>
+      </div>
+      <div class="ex full" data-search="best revenue forecast procedure added seats actual average check increase percentage">
+        <div class="name">Procedure — Best Revenue Forecast</div>
+        <div class="steps">Option A (added seats):
+  1  Actual Avg Check = Total Revenue ÷ No. Seats = x
+  2  New Potential = Added Seats × x = y
+  3  Best Revenue = Total Revenue + y
+
+Option B (% increase):
+  1  Added seats ≈ x% increase
+  2  Best Revenue = Total Revenue × (1 + increase %)</div>
+      </div>
+      <div class="ex full" data-search="cost percent forecast procedure actual cost of food increased new food cost percentage">
+        <div class="name">Procedure — Cost % Forecast</div>
+        <div class="steps">1  Actual food cost = Food Sales × Food Cost % = x
+2  New cost (increased by y%) = x × (1 + y%) = z
+3  New Food Cost % = (z ÷ Food Sales) × 100</div>
+      </div>
+      <div class="ex full" data-search="average check variance percentage new average check covers difference procedure">
+        <div class="name">Procedure — Average Check Variance %</div>
+        <div class="steps">1  New Average Check = Revenue ÷ Covers = x
+2  Difference = New Avg Check − old average sale per guest
+3  Variance % = Difference ÷ old (× 100)</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ DECISION RULES ============ -->
+  <section id="rules">
+    <div class="sec-head"><h2>Decision Rules — Quick Reference</h2><span class="tag">"is it good or bad?"</span></div>
+    <div class="grid">
+      <div class="rule full" data-search="cost classification direct indirect variable fixed do costs increase produce more units trace">
+        <div class="name">Cost classification — 2 questions</div>
+        <div class="body">
+          <b>Variable or Fixed?</b> → "Do my costs increase when I produce more units?" Yes = Variable, No = Fixed (both = Mixed).<br>
+          <b>Direct or Indirect?</b> → "Can I trace this cost back to one product/unit?" Yes = Direct, No = Indirect.
+        </div>
+      </div>
+      <div class="rule full" data-search="omnes ideal thresholds price range 2.5 3 spread 25 50 25 category ratio 0.9 0.99">
+        <div class="name">OMNES ideal thresholds</div>
+        <div class="body">P1 Price Range ratio <b>2.5–3</b> · P2 Spread <b>25%-50%-25%</b> · P3 Category Ratio <b>0.9–0.99</b> (&lt;0.9 too pricey, &gt;1 too cheap) · P4 promote <b>middle</b> items.</div>
+      </div>
+      <div class="rule full" data-search="menu engineering star plowhorse puzzle dog popularity profit thresholds 17.5">
+        <div class="name">Menu engineering cut-lines</div>
+        <div class="body">Popularity axis vs <b>(100% ÷ items) × 70%</b>; Profit axis vs <b>Average Gross Profit</b>. High-High = Star (keep) · Low-profit/High-pop = Plowhorse (rework/raise price) · High-profit/Low-pop = Puzzle (promote) · Low-Low = Dog (remove).</div>
+      </div>
+      <div class="rule full" data-search="pricing factor table desired food cost 20 25 33 5 4 3">
+        <div class="name">Pricing factor quick table</div>
+        <div class="body">Desired FC 20% → factor <b>5</b> · 25% → <b>4</b> · 33.33% → <b>3</b>. &nbsp;(Factor = 100 ÷ desired FC%.)</div>
+      </div>
+      <div class="rule full" data-search="round up covers prime cost too high 78 beverage with food vat net">
+        <div class="name">Exam reflexes</div>
+        <div class="body">Always <b>round covers UP</b>. <b>Beverage cost grouped with food.</b> Prime cost ~78% = too high, don't open. P&amp;L recorded <b>net of VAT</b>. Potential FC &lt; Actual FC. If receiving is wrong, <b>don't sign</b>.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ TRAPS ============ -->
+  <section id="traps">
+    <div class="sec-head"><h2>Quiz Traps (from your notes)</h2><span class="tag">memorize the answers</span></div>
+    <div class="grid">
+      <div class="trap" data-search="institutional food service subsidized cost oriented incentive"><div class="q">Institutional food service is usually…</div><div class="a">Very often subsidized; generally cost-oriented; can be an employee incentive.</div></div>
+      <div class="trap" data-search="no company market share fragmented"><div class="q">When no one company has a specific market share, the market is…</div><div class="a">Fragmented.</div></div>
+      <div class="trap" data-search="pestel used for monitor track environment"><div class="q">What is PESTEL used for?</div><div class="a">A tool to monitor and track the environment a company operates in.</div></div>
+      <div class="trap" data-search="maturity phase constant sales reducing costs increasing profits"><div class="q">Maturity phase of the life cycle is characterized by…</div><div class="a">Constant sales, reducing costs, increasing profits.</div></div>
+      <div class="trap" data-search="failure rate internal factors more than external true"><div class="q">Failure rate is affected more by internal than external factors?</div><div class="a">True (both apply).</div></div>
+      <div class="trap" data-search="fast growth not managed failure true"><div class="q">Too-fast growth unmanaged can cause failure?</div><div class="a">True.</div></div>
+      <div class="trap" data-search="another name p&l income statement"><div class="q">Another name for an operation's P&amp;L statement?</div><div class="a">Income Statement.</div></div>
+      <div class="trap" data-search="kpi criteria actionable clearly defined quantifiable"><div class="q">A KPI should be…</div><div class="a">Actionable, clearly defined, quantifiable.</div></div>
+      <div class="trap" data-search="prime cost 78 open restaurant financially not"><div class="q">A restaurant's prime cost is 78% — open it?</div><div class="a">Financially no — prime cost is too high.</div></div>
+      <div class="trap" data-search="highest margin upper left corner menu false"><div class="q">Put the highest-margin item in the upper-left corner?</div><div class="a">False (people look top-right; put what you want to sell there).</div></div>
+      <div class="trap" data-search="price blending different profit ratios stimulate sales desired cost"><div class="q">Point of price blending?</div><div class="a">Set different profit ratios on items to stimulate sales and hit the total desired cost of sales.</div></div>
+      <div class="trap" data-search="100 divided desired food cost pricing factor true"><div class="q">100 ÷ desired food cost % gives the pricing factor?</div><div class="a">True.</div></div>
+      <div class="trap" data-search="which pricing method fixed costs direct consideration average gross margin"><div class="q">Which pricing method takes fixed costs into direct account?</div><div class="a">Average Gross Margin Method.</div></div>
+      <div class="trap" data-search="price spread high 5 mid 1 low 2 upscale non price sensitive"><div class="q">Spread High 5 / Mid 1 / Low 2 — what restaurant? (OMNES)</div><div class="a">Upscale dining for non-price-sensitive clients.</div></div>
+      <div class="trap" data-search="purchase order commercial document official offer buyer seller"><div class="q">A Purchase Order is…</div><div class="a">A commercial document and official offer issued by a buyer to a seller.</div></div>
+      <div class="trap" data-search="ordered last day month consumption method of replenishment"><div class="q">Ordered last day of every month, based on month's consumption — which method?</div><div class="a">Method of Replenishment.</div></div>
+      <div class="trap" data-search="abc category a 7 12 percent false 70"><div class="q">ABC: category-A items are 7–12% of total inventory value?</div><div class="a">False — they make up ~70% of consumption value.</div></div>
+      <div class="trap" data-search="weighted average price benefit accuracy price changes"><div class="q">Benefit of the Weighted Average Price method?</div><div class="a">Relative accuracy in reflecting price changes.</div></div>
+      <div class="trap" data-search="beverage method determine potential sales value full bottle issued actual statistics sales value method"><div class="q">"Potential sales value per bottle issued + actual sales stats" — which beverage method?</div><div class="a">Sales Value Method.</div></div>
+    </div>
+  </section>
+</main>
+
+<div class="noresults" id="noresults">No matches. Try a shorter term (e.g. just <b>%</b>, <b>BEP</b>, <b>cover</b>, <b>yield</b>).</div>
+
+<footer>
+  Built from your course notes (F&amp;B Cost Control v2.0), the A–Z equations doc, and the Week-14 all-teams summary deck.
+  Faithful to your materials; a few likely note-typos are flagged in <span class="warn">red</span>. Verify against official EHL material before the exam.
+  <span id="stamp"></span>
+</footer>
+
+<script>
+(function(){
+  const search=document.getElementById('search');
+  const clr=document.getElementById('clr');
+  const count=document.getElementById('count');
+  const noresults=document.getElementById('noresults');
+  const cards=Array.from(document.querySelectorAll('.card,.ex,.rule,.trap'));
+  const sections=Array.from(document.querySelectorAll('section'));
+
+  // store searchable text once
+  cards.forEach(c=>{
+    const extra=c.getAttribute('data-search')||'';
+    c._text=(c.textContent+' '+extra).toLowerCase();
+    c._html=c.innerHTML;
+  });
+  const totalCount=cards.length;
+  function setBaseCount(){count.textContent=totalCount+' cards';}
+  setBaseCount();
+
+  function clearMarks(){cards.forEach(c=>{if(c.innerHTML!==c._html)c.innerHTML=c._html;});}
+
+  function esc(s){return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');}
+
+  function highlight(card,terms){
+    // walk text nodes, wrap matches
+    const rx=new RegExp('('+terms.map(esc).join('|')+')','gi');
+    const walker=document.createTreeWalker(card,NodeFilter.SHOW_TEXT,null);
+    const nodes=[];let n;
+    while(n=walker.nextNode()){if(n.nodeValue.trim())nodes.push(n);}
+    nodes.forEach(node=>{
+      if(!rx.test(node.nodeValue))return;
+      rx.lastIndex=0;
+      const span=document.createElement('span');
+      span.innerHTML=node.nodeValue.replace(rx,'<mark>$1</mark>');
+      node.parentNode.replaceChild(span,node);
+    });
+  }
+
+  function run(){
+    const q=search.value.trim().toLowerCase();
+    clr.style.display=q?'block':'none';
+    clearMarks();
+    if(!q){
+      cards.forEach(c=>c.classList.remove('nohit'));
+      sections.forEach(s=>s.classList.remove('nohit'));
+      noresults.style.display='none';
+      setBaseCount();
+      return;
+    }
+    const terms=q.split(/\s+/).filter(Boolean);
+    let shown=0;
+    cards.forEach(c=>{
+      const hit=terms.every(t=>c._text.includes(t));
+      if(hit){c.classList.remove('nohit');shown++;highlight(c,terms);}
+      else c.classList.add('nohit');
+    });
+    sections.forEach(s=>{
+      const any=s.querySelector('.card:not(.nohit),.ex:not(.nohit),.rule:not(.nohit),.trap:not(.nohit)');
+      s.classList.toggle('nohit',!any);
+    });
+    count.textContent=shown+' match'+(shown===1?'':'es');
+    noresults.style.display=shown?'none':'block';
+  }
+
+  search.addEventListener('input',run);
+  clr.addEventListener('click',()=>{search.value='';run();search.focus();});
+  document.addEventListener('keydown',e=>{
+    if(e.key==='/'&&document.activeElement!==search){e.preventDefault();search.focus();}
+    if(e.key==='Escape'){search.value='';run();search.blur();}
+  });
+  document.getElementById('printbtn').addEventListener('click',()=>{search.value='';run();window.print();});
+  document.getElementById('stamp').textContent='';
+})();
+</script>
+</body>
+</html>
